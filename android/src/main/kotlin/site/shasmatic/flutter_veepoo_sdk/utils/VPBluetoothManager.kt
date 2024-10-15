@@ -25,21 +25,21 @@ import com.veepoo.protocol.model.enums.EPwdStatus
 import com.veepoo.protocol.model.settings.CustomSettingData
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import site.shasmatic.flutter_veepoo_sdk.VeepooLogger
+import site.shasmatic.flutter_veepoo_sdk.DeviceBindingStatus
+import site.shasmatic.flutter_veepoo_sdk.VPLogger
 import java.lang.reflect.InvocationTargetException
 
 /**
  * Manages Bluetooth operations for the Flutter Veepoo SDK plugin.
  *
- * @constructor Initializes the [BluetoothManager] with the given [DeviceStorage], [MethodChannel.Result], [Activity], [EventChannel.EventSink], and [VPOperateManager].
+ * @constructor Initializes the [VPBluetoothManager] with the given [DeviceStorage], [MethodChannel.Result], [Activity], [EventChannel.EventSink], and [VPOperateManager].
  * @param deviceStorage An instance of [DeviceStorage] used for local storage interactions.
  * @param result The result instance for the current method call.
  * @param activity The activity instance to be associated with this manager.
  * @param bluetoothEventSink The EventSink instance to be used for Bluetooth scan events.
  * @param vpManager An instance of [VPOperateManager] used to control operations on the wearable device.
- * @author Ahmad Rifa'i
  */
-class BluetoothManager(
+class VPBluetoothManager(
     private val deviceStorage: DeviceStorage,
     private val result: MethodChannel.Result,
     private val activity: Activity,
@@ -47,29 +47,19 @@ class BluetoothManager(
     private val vpManager: VPOperateManager
 ) {
 
-    private var isEnabled: Boolean = false
+    private var isEnabled: Boolean = true
     private var isSubmitted: Boolean = false
-    private var macAddress: String = ""
-    private val discoveredDevices: MutableList<String> = mutableListOf<String>()
+    private val discoveredDevices: MutableList<String> = mutableListOf()
     private val sendEvent: SendEvent = SendEvent(bluetoothEventSink)
 
     companion object {
         private const val REQUEST_PERMISSIONS_CODE = 1001
-        private const val REQUEST_ENABLE_BT = 1
-        private const val REQUEST_ENABLE_LOCATION = 2
     }
 
     /**
      * Requests the necessary permissions for Bluetooth operations.
      *
-     * This method checks if the required permissions are granted and requests them if not.
-     * The permissions required are:
-     * - ACCESS_FINE_LOCATION
-     * - BLUETOOTH
-     * - BLUETOOTH_ADMIN
-     * - BLUETOOTH_SCAN
-     * - BLUETOOTH_CONNECT
-     * @see requiredPermissions
+     * This method should be called before scanning for devices.
      */
     @RequiresApi(Build.VERSION_CODES.S)
     fun requestBluetoothPermissions() {
@@ -80,42 +70,33 @@ class BluetoothManager(
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun arePermissionsGranted(): Boolean {
-        return ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
-                ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        return requiredPermissions().all {
+            ActivityCompat.checkSelfPermission(activity, it) == PackageManager.PERMISSION_GRANTED
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun requiredPermissions(): Array<String> {
         return arrayOf(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.BLUETOOTH,
-            android.Manifest.permission.BLUETOOTH_ADMIN,
             android.Manifest.permission.BLUETOOTH_SCAN,
-            android.Manifest.permission.BLUETOOTH_CONNECT
+            android.Manifest.permission.BLUETOOTH_CONNECT,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
         )
     }
 
     /**
-     * Initializes the Bluetooth scanner.
-     *
-     * This method checks if the Bluetooth adapter is enabled and initializes the scanner if it is.
-     * If the adapter is disabled, the method logs a warning message.
+     * Scans all available Bluetooth devices.
      */
     fun scanDevices() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isEnabled) {
             startScanDevices()
         } else {
-            VeepooLogger.w("Bluetooth is disabled or the scanner is not initialized")
+            VPLogger.w("Bluetooth is disabled or the scanner is not initialized")
         }
     }
 
     /**
-     * Stops the Bluetooth scanner.
-     *
-     * This method stops the Bluetooth scanner and clears the list of discovered devices.
+     * Stops scanning for Bluetooth devices.
      */
     fun stopScanDevices() {
         vpManager.stopScanDevice()
@@ -123,17 +104,16 @@ class BluetoothManager(
     }
 
     /**
-     * Bind the device with the given password.
+     * Binds the device with the given password and 24-hour mode status.
      *
-     * This method binds the device with the given password and 24-hour format preference.
-     *
-     * @param password The password to bind the device with.
-     * @param is24H A flag indicating whether the 24-hour format is preferred.
+     * @param password The password used to bind the device.
+     * @param is24H A boolean indicating whether the device is in 24-hour mode.
+     * @param onStatus A callback function to handle the binding status.
      */
-    fun bindDevice(password: String, is24H: Boolean) {
+    fun bindDevice(password: String, is24H: Boolean, onStatus: (DeviceBindingStatus?) -> Unit) {
         vpManager.confirmDevicePwd(
             writeResponseCallBack,
-            passwordDataListener(password, is24H),
+            passwordDataListener(password, is24H, onStatus),
             deviceFuncDataListener,
             socialMessageDataListener,
             customSettingDataListener,
@@ -142,31 +122,41 @@ class BluetoothManager(
     }
 
     /**
-     * Connect to a Bluetooth device with the given address.
-     *
-     * This method connects to the Bluetooth device with the given address and registers the connect status listener.
+     * Connects to the device with the given MAC address.
      *
      * @param address The MAC address of the device to connect to.
      */
     fun connectDevice(address: String) {
-        macAddress = address
-        vpManager.registerConnectStatusListener(macAddress, bleConnectStatusListener)
-        vpManager.connectDevice(macAddress, connectResponseCallBack, notifyResponseCallBack)
+        vpManager.registerConnectStatusListener(address, bleConnectStatusListener)
+        vpManager.connectDevice(address, connectResponseCallBack, notifyResponseCallBack)
     }
 
     /**
-     * Disconnect from the connected Bluetooth device.
-     *
-     * This method disconnects from the connected Bluetooth device.
+     * Disconnects from the connected device.
      */
     fun disconnectDevice() {
         try {
-            vpManager.disconnectWatch(writeResponseCallBack)
+            if (isDeviceConnected()) {
+                vpManager.disconnectWatch(writeResponseCallBack)
+                vpManager.unregisterConnectStatusListener(deviceStorage.getAddress(), bleConnectStatusListener)
+                deviceStorage.saveAddress(null)
+            } else {
+                VPLogger.e("No device is currently connected")
+            }
         } catch (e: InvocationTargetException) {
-            VeepooLogger.e("Failed to disconnect from device: ${e.message}", e.cause)
+            VPLogger.e("Failed to disconnect from device: ${e.message}", e.cause)
         } catch (e: Exception) {
-            VeepooLogger.e("Failed to disconnect from device: ${e.message}", e.cause)
+            VPLogger.e("Failed to disconnect from device: ${e.message}", e.cause)
         }
+    }
+
+    /**
+     * Checks if the device is currently connected.
+     *
+     * @return A boolean indicating whether the device is connected.
+     */
+    fun isDeviceConnected(): Boolean {
+        return vpManager.isDeviceConnected(deviceStorage.getAddress())
     }
 
     private fun startScanDevices() {
@@ -175,39 +165,43 @@ class BluetoothManager(
 
     private val searchResponseCallBack = object : SearchResponse {
         override fun onSearchStarted() {
-            VeepooLogger.i("Bluetooth scan started")
+            VPLogger.i("Bluetooth scan started")
         }
 
         override fun onDeviceFounded(result: SearchResult?) {
-            VeepooLogger.i("Device found")
+            VPLogger.i("Device found")
             result?.let {
                 if (discoveredDevices.add(it.address)) {
-                    val scanResult = mapOf<String, Any>(
+                    val scanResult = mapOf(
                         "name" to it.name,
                         "address" to it.address,
                         "rssi" to it.rssi
                     )
-
                     sendEvent.sendBluetoothEvent(scanResult)
                 }
             }
         }
 
         override fun onSearchStopped() {
-            VeepooLogger.i("Bluetooth scan stopped")
+            VPLogger.i("Bluetooth scan stopped")
         }
 
         override fun onSearchCanceled() {
-            VeepooLogger.i("Bluetooth scan canceled")
+            VPLogger.i("Bluetooth scan canceled")
         }
     }
 
     private val bleConnectStatusListener = object : IABleConnectStatusListener() {
         override fun onConnectStatusChanged(address: String?, status: Int) {
-            if (status == Constants.STATUS_CONNECTED) {
-                VeepooLogger.i("Connected to device")
-            } else if (status == Constants.STATUS_DISCONNECTED) {
-                VeepooLogger.i("Disconnected from device")
+            when (status) {
+                Constants.STATUS_CONNECTED -> {
+                    val currentAddress = deviceStorage.saveAddress(address)
+                    VPLogger.i("Connected to device: $currentAddress")
+                }
+                Constants.STATUS_DISCONNECTED -> {
+                    deviceStorage.saveAddress(null)
+                    VPLogger.i("Disconnected from device, resetting currentAddress.")
+                }
             }
         }
     }
@@ -219,7 +213,7 @@ class BluetoothManager(
                 if (success) {
                     result.success("Connected to device")
                 } else {
-                    VeepooLogger.e("Failed to connect to device: $state")
+                    VPLogger.e("Failed to connect to device: $state")
                     result.error("CONNECT_FAILED", "Failed to connect to device", null)
                 }
             }
@@ -233,7 +227,7 @@ class BluetoothManager(
                 if (state == Constants.REQUEST_SUCCESS) {
                     result.success("Notification enabled")
                 } else {
-                    VeepooLogger.e("Failed to enable notification: $state")
+                    VPLogger.e("Failed to enable notification: $state")
                     result.error("NOTIFY_FAILED", "Failed to enable notification", null)
                 }
             }
@@ -242,48 +236,54 @@ class BluetoothManager(
 
     private val writeResponseCallBack = object : IBleWriteResponse {
         override fun onResponse(status: Int) {
-            VeepooLogger.i("Write response: $status")
+            VPLogger.i("Write response: $status")
         }
     }
 
-    private fun passwordDataListener(password: String, is24H: Boolean): IPwdDataListener {
-        return object : IPwdDataListener{
+    private fun passwordDataListener(password: String, is24H: Boolean, onStatus: (DeviceBindingStatus?) -> Unit): IPwdDataListener {
+        return object : IPwdDataListener {
             override fun onPwdDataChange(data: PwdData?) {
-                VeepooLogger.i("Password binding result: $data")
-                when(data?.getmStatus()) {
-                    EPwdStatus.CHECK_FAIL -> VeepooLogger.e("Password check failed")
-                    EPwdStatus.CHECK_SUCCESS -> VeepooLogger.i("Password check success")
-                    EPwdStatus.SETTING_FAIL -> VeepooLogger.e("Password setting failed")
-                    EPwdStatus.SETTING_SUCCESS -> VeepooLogger.i("Password setting success")
-                    EPwdStatus.READ_FAIL -> VeepooLogger.e("Password read failed")
-                    EPwdStatus.READ_SUCCESS -> VeepooLogger.i("Password read success")
-                    EPwdStatus.CHECK_AND_TIME_SUCCESS -> deviceStorage.saveCredentials(macAddress, password, is24H)
-                    EPwdStatus.UNKNOW -> VeepooLogger.e("Unknown password status")
-                    null -> VeepooLogger.e("Password status is null")
+                VPLogger.i("Password binding result: $data")
+
+                val status = when (data?.getmStatus()) {
+                    EPwdStatus.CHECK_FAIL -> DeviceBindingStatus.CHECK_FAIL
+                    EPwdStatus.UNKNOW -> DeviceBindingStatus.UNKNOWN
+                    EPwdStatus.CHECK_SUCCESS -> DeviceBindingStatus.CHECK_SUCCESS
+                    EPwdStatus.SETTING_FAIL -> DeviceBindingStatus.SETTING_FAIL
+                    EPwdStatus.SETTING_SUCCESS -> DeviceBindingStatus.SETTING_SUCCESS
+                    EPwdStatus.READ_FAIL -> DeviceBindingStatus.READ_FAIL
+                    EPwdStatus.READ_SUCCESS -> DeviceBindingStatus.READ_SUCCESS
+                    EPwdStatus.CHECK_AND_TIME_SUCCESS -> {
+                        deviceStorage.saveCredentials(password, is24H)
+                        DeviceBindingStatus.CHECK_AND_TIME_SUCCESS
+                    }
+                    null -> null
                 }
+
+                onStatus(status)
             }
         }
     }
 
     private val deviceFuncDataListener = object : IDeviceFuctionDataListener {
         override fun onFunctionSupportDataChange(data: FunctionDeviceSupportData?) {
-            VeepooLogger.i("Device function data: $data")
+            VPLogger.i("Device function data: $data")
         }
     }
 
     private val socialMessageDataListener = object : ISocialMsgDataListener {
         override fun onSocialMsgSupportDataChange(data: FunctionSocailMsgData?) {
-            VeepooLogger.i("Social message data change 1: $data")
+            VPLogger.i("Social message data change 1: $data")
         }
 
         override fun onSocialMsgSupportDataChange2(data: FunctionSocailMsgData?) {
-            VeepooLogger.i("Social message data change 2: $data")
+            VPLogger.i("Social message data change 2: $data")
         }
     }
 
     private val customSettingDataListener = object : ICustomSettingDataListener {
         override fun OnSettingDataChange(data: CustomSettingData?) {
-            VeepooLogger.i("Custom setting data: $data")
+            VPLogger.i("Custom setting data: $data")
         }
     }
 }

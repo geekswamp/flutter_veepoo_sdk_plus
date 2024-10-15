@@ -11,7 +11,6 @@ import android.content.SharedPreferences
  *
  * @constructor Initializes the [DeviceStorage] with the given context.
  * @param context The application context used to access [SharedPreferences].
- * @author Ahmad Rifa'i
  */
 class DeviceStorage(private val context: Context) {
 
@@ -26,6 +25,11 @@ class DeviceStorage(private val context: Context) {
      * Retrieves the [SharedPreferences] instance.
      */
     private fun getSharedPreferences(): SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+    /**
+     * Retrieves the [SharedPreferences.Editor] instance.
+     */
+    private val editor = getSharedPreferences().edit()
 
     /**
      * Retrieves the saved address from [SharedPreferences].
@@ -49,15 +53,23 @@ class DeviceStorage(private val context: Context) {
     fun get24H(): Boolean = getSharedPreferences().getBoolean(KEY_IS_24H, true)
 
     /**
+     * Saves the given address into the [SharedPreferences].
+     *
+     * @param address The address to be saved.
+     */
+    fun saveAddress(address: String?) {
+        editor.putString(KEY_ADDRESS, address)
+        editor.apply()
+    }
+
+    /**
      * Saves the user credentials, including the address, password, and the 24-hour format preference, into the [SharedPreferences].
      *
      * @param address The address to be saved.
      * @param password The password to be saved.
      * @param is24H A flag indicating whether the 24-hour format is preferred.
      */
-    fun saveCredentials(address: String, password: String, is24H: Boolean) {
-        val editor = getSharedPreferences().edit()
-        editor.putString(KEY_ADDRESS, address)
+    fun saveCredentials(password: String, is24H: Boolean) {
         editor.putString(KEY_PASSWORD, password)
         editor.putBoolean(KEY_IS_24H, is24H)
         editor.apply()

@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
  *
  * @constructor Initializes the [SendEvent] with the given [EventChannel.EventSink].
  * @param eventSink The sink that receives the events.
- * @author Ahmad Rifa'i
  */
 class SendEvent(private val eventSink: EventChannel.EventSink?) {
 

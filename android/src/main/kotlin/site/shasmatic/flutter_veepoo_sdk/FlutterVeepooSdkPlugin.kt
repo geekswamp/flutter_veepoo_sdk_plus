@@ -15,13 +15,11 @@ import site.shasmatic.flutter_veepoo_sdk.utils.DeviceStorage
  *
  * This class implements the [FlutterPlugin] and [ActivityAware] interfaces to facilitate
  * communication between Flutter and the Veepoo SDK.
- *
- * @author Ahmad Rifa'i
  */
 class FlutterVeepooSdkPlugin: FlutterPlugin, ActivityAware {
 
   private lateinit var channel : MethodChannel
-  private lateinit var methodChannelHandler: MethodChannelHandler
+    private lateinit var methodChannelHandler: VPMethodChannelHandler
   private lateinit var deviceStorage: DeviceStorage
   private lateinit var vpSpGetUtil: VpSpGetUtil
   private var vpManager: VPOperateManager? = null
@@ -46,7 +44,7 @@ class FlutterVeepooSdkPlugin: FlutterPlugin, ActivityAware {
   }
 
   private fun initializeChannels(messenger: BinaryMessenger) {
-    methodChannelHandler = MethodChannelHandler(vpManager!!, vpSpGetUtil, deviceStorage)
+    methodChannelHandler = VPMethodChannelHandler(vpManager!!, vpSpGetUtil, deviceStorage)
     channel = MethodChannel(messenger, COMMAND_CHANNEL)
     channel.setMethodCallHandler(methodChannelHandler)
 

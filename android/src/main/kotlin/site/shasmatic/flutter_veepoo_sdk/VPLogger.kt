@@ -7,9 +7,8 @@ import android.util.Log
  *
  * This class provides methods to log messages at different levels: debug, info, warning, and error.
  * @see Log
- * @author Ahmad Rifa'i
  */
-object VeepooLogger {
+object VPLogger {
     private const val TAG = "FlutterVeepooSDK"
 
     /**
