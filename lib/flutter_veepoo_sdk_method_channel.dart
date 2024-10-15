@@ -45,6 +45,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
     await methodChannel.invokeMethod<void>('scanDevices');
   }
 
+  /// Stop scan Bluetooth devices.
+  @override
+  Future<void> stopScanDevices() async {
+    await methodChannel.invokeMethod<void>('stopScanDevices');
+  }
+
   /// Connects to a Bluetooth device.
   @override
   Future<void> connectDevice(String address) async {

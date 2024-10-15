@@ -39,6 +39,11 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
     throw UnimplementedError('scanDevices() has not been implemented.');
   }
 
+  /// Stop scan Bluetooth devices.
+  Future<void> stopScanDevices() {
+    throw UnimplementedError('stopScanDevices() has not been implemented.');
+  }
+
   /// Connects to a Bluetooth device.
   Future<void> connectDevice(String address) {
     throw UnimplementedError('connectDevice() has not been implemented.');

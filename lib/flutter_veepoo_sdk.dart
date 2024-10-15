@@ -32,6 +32,11 @@ class FlutterVeepooSdk {
     return _platform.scanDevices();
   }
 
+  /// Stop scan Bluetooth devices.
+  Future<void> stopScanDevices() {
+    return _platform.stopScanDevices();
+  }
+
   /// Connects to a Bluetooth device.
   Future<void> connectDevice(String address) {
     return _platform.connectDevice(address);
