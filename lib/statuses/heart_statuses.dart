@@ -6,7 +6,7 @@ enum HeartStatuses {
   init('STATE_INIT'),
 
   /// The state when the heart is busy.
-  heartBusy('STATE_HEART_BUST'),
+  heartBusy('STATE_HEART_BUSY'),
 
   /// The state when the heart is being detected.
   heartDetect('STATE_HEART_DETECT'),
