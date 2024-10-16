@@ -9,4 +9,4 @@ package site.shasmatic.flutter_veepoo_sdk.exceptions
  * @see Exception
  * @see Throwable
  */
-abstract class VPException(message: String, cause: Throwable? = null) : Exception(message, cause)
+class VPException(message: String, cause: Throwable? = null) : Exception(message, cause)

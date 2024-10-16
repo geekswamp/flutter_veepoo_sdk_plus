@@ -9,6 +9,7 @@ import com.veepoo.protocol.shareprence.VpSpGetUtil
 import io.flutter.plugin.common.EventChannel
 import site.shasmatic.flutter_veepoo_sdk.DeviceBindingStatus
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
+import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import java.lang.reflect.InvocationTargetException
 
 /**
@@ -47,9 +48,9 @@ class HeartRate(
         try {
             operation()
         } catch (e: InvocationTargetException) {
-            VPLogger.e("Error during heart rate operation: ${e.targetException.message}", e.targetException.cause)
+            throw VPException("Error during heart rate operation: ${e.targetException.message}", e.targetException.cause)
         } catch (e: Exception) {
-            VPLogger.e("Error during heart rate operation: ${e.message}", e.cause)
+            throw VPException("Error during heart rate operation: ${e.message}", e.cause)
         }
     }
 

@@ -19,7 +19,7 @@ import site.shasmatic.flutter_veepoo_sdk.utils.DeviceStorage
 class FlutterVeepooSdkPlugin: FlutterPlugin, ActivityAware {
 
   private lateinit var channel : MethodChannel
-    private lateinit var methodChannelHandler: VPMethodChannelHandler
+  private lateinit var methodChannelHandler: VPMethodChannelHandler
   private lateinit var deviceStorage: DeviceStorage
   private lateinit var vpSpGetUtil: VpSpGetUtil
   private var vpManager: VPOperateManager? = null

@@ -27,6 +27,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import site.shasmatic.flutter_veepoo_sdk.DeviceBindingStatus
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
+import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import java.lang.reflect.InvocationTargetException
 
 /**
@@ -144,9 +145,9 @@ class VPBluetoothManager(
                 VPLogger.e("No device is currently connected")
             }
         } catch (e: InvocationTargetException) {
-            VPLogger.e("Failed to disconnect from device: ${e.message}", e.cause)
+            VPException("Failed to disconnect from device: ${e.targetException.message}", e.targetException.cause)
         } catch (e: Exception) {
-            VPLogger.e("Failed to disconnect from device: ${e.message}", e.cause)
+            VPException("Failed to disconnect from device: ${e.message}", e.cause)
         }
     }
 
