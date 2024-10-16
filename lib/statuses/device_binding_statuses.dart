@@ -24,8 +24,7 @@ enum DeviceBindingStatus {
   readSuccess('READ_SUCCESS'),
 
   /// Successfully check time.
-  checkAndTimeSuccess('CHECK_AND_TIME_SUCCESS'),
-  ;
+  checkAndTimeSuccess('CHECK_AND_TIME_SUCCESS');
 
   /// {@macro device_binding_statuses}
   const DeviceBindingStatus(this.statusValue);
