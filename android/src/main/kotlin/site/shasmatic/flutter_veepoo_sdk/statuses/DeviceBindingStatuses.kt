@@ -1,11 +1,11 @@
-package site.shasmatic.flutter_veepoo_sdk
+package site.shasmatic.flutter_veepoo_sdk.statuses
 
 /**
  * Enum class representing the status of a device binding operation.
  *
- * @constructor Creates a new [DeviceBindingStatus] instance with the specified status.
+ * @constructor Creates a new [DeviceBindingStatuses] instance with the specified status.
  */
-enum class DeviceBindingStatus {
+enum class DeviceBindingStatuses {
 
     /**
      * Unknown status.
