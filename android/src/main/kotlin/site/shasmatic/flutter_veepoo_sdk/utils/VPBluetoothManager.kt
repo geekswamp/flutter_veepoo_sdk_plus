@@ -25,7 +25,7 @@ import com.veepoo.protocol.model.enums.EPwdStatus
 import com.veepoo.protocol.model.settings.CustomSettingData
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import site.shasmatic.flutter_veepoo_sdk.DeviceBindingStatus
+import site.shasmatic.flutter_veepoo_sdk.statuses.DeviceBindingStatuses
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import java.lang.reflect.InvocationTargetException
@@ -52,20 +52,26 @@ class VPBluetoothManager(
     private var isSubmitted: Boolean = false
     private val discoveredDevices: MutableList<String> = mutableListOf()
     private val sendEvent: SendEvent = SendEvent(bluetoothEventSink)
+    private val currentGatt = vpManager.currentConnectGatt
 
     companion object {
-        private const val REQUEST_PERMISSIONS_CODE = 1001
+        const val REQUEST_PERMISSIONS_CODE = 1001
     }
 
     /**
      * Requests the necessary permissions for Bluetooth operations.
      *
      * This method should be called before scanning for devices.
+     *
+     * @param callback A callback function to handle the permission status.
      */
     @RequiresApi(Build.VERSION_CODES.S)
-    fun requestBluetoothPermissions() {
+    fun requestBluetoothPermissions(callback: (Boolean) -> Unit) {
         if (!arePermissionsGranted()) {
             ActivityCompat.requestPermissions(activity, requiredPermissions(), REQUEST_PERMISSIONS_CODE)
+            this.permissionCallback = callback
+        } else {
+            callback(true)
         }
     }
 
@@ -85,14 +91,35 @@ class VPBluetoothManager(
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    private var permissionCallback: ((Boolean) -> Unit)? = null
+
+    /**
+     * Handles the result of a permission request.
+     *
+     * @param requestCode The request code for the permission request.
+     * @param permissions The requested permissions.
+     * @param grantResults The results of the permission request.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String?>, grantResults: IntArray) {
+        if (requestCode == REQUEST_PERMISSIONS_CODE) {
+            val granted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            permissionCallback?.invoke(granted)
+            permissionCallback = null
+        }
+    }
+
     /**
      * Scans all available Bluetooth devices.
      */
     fun scanDevices() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isEnabled) {
-            startScanDevices()
-        } else {
-            VPLogger.w("Bluetooth is disabled or the scanner is not initialized")
+        executeBluetoothOperation {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isEnabled) {
+                startScanDevices()
+            } else {
+                VPLogger.w("Bluetooth is disabled or the scanner is not initialized")
+            }
         }
     }
 
@@ -111,7 +138,7 @@ class VPBluetoothManager(
      * @param is24H A boolean indicating whether the device is in 24-hour mode.
      * @param onStatus A callback function to handle the binding status.
      */
-    fun bindDevice(password: String, is24H: Boolean, onStatus: (DeviceBindingStatus?) -> Unit) {
+    fun bindDevice(password: String, is24H: Boolean, onStatus: (DeviceBindingStatuses?) -> Unit) {
         vpManager.confirmDevicePwd(
             writeResponseCallBack,
             passwordDataListener(password, is24H, onStatus),
@@ -133,35 +160,52 @@ class VPBluetoothManager(
     }
 
     /**
-     * Disconnects from the connected device.
+     * Gets the MAC address of the connected device.
      */
-    fun disconnectDevice() {
-        try {
-            if (isDeviceConnected()) {
-                vpManager.disconnectWatch(writeResponseCallBack)
-                vpManager.unregisterConnectStatusListener(deviceStorage.getAddress(), bleConnectStatusListener)
-                deviceStorage.saveAddress(null)
-            } else {
-                VPLogger.e("No device is currently connected")
-            }
-        } catch (e: InvocationTargetException) {
-            VPException("Failed to disconnect from device: ${e.targetException.message}", e.targetException.cause)
-        } catch (e: Exception) {
-            VPException("Failed to disconnect from device: ${e.message}", e.cause)
-        }
+    fun getAddress() {
+        result.success(currentGatt.device.address)
     }
 
     /**
-     * Checks if the device is currently connected.
-     *
-     * @return A boolean indicating whether the device is connected.
+     * Gets the current connection status of the connected device.
+     */
+    fun getCurrentStatus(): Int {
+        val status = vpManager.getConnectStatus(currentGatt.device.address)
+        result.success(status)
+        return status
+    }
+
+    /**
+     * Checks if the device is connected.
      */
     fun isDeviceConnected(): Boolean {
-        return vpManager.isDeviceConnected(deviceStorage.getAddress())
+        val isConnected = vpManager.isCurrentDeviceConnected
+        result.success(isConnected)
+        return isConnected
+    }
+
+    /**
+     * Disconnects from the connected device.
+     */
+    fun disconnectDevice() {
+        executeBluetoothOperation {
+            vpManager.disconnectWatch(writeResponseCallBack)
+            vpManager.unregisterConnectStatusListener(currentGatt.device.address, bleConnectStatusListener)
+        }
     }
 
     private fun startScanDevices() {
         vpManager.startScanDevice(searchResponseCallBack)
+    }
+
+    private fun executeBluetoothOperation(operation: () -> Unit) {
+        try {
+            operation()
+        } catch (e: InvocationTargetException) {
+            throw VPException("Error during Bluetooth operation: ${e.targetException.message}", e.targetException.cause)
+        } catch (e: Exception) {
+            throw VPException("Error during Bluetooth operation: ${e.message}", e.cause)
+        }
     }
 
     private val searchResponseCallBack = object : SearchResponse {
@@ -170,9 +214,10 @@ class VPBluetoothManager(
         }
 
         override fun onDeviceFounded(result: SearchResult?) {
-            VPLogger.i("Device found")
             result?.let {
-                if (discoveredDevices.add(it.address)) {
+                if (!discoveredDevices.contains(it.address)) {
+                    discoveredDevices.add(it.address)
+
                     val scanResult = mapOf(
                         "name" to it.name,
                         "address" to it.address,
@@ -196,12 +241,10 @@ class VPBluetoothManager(
         override fun onConnectStatusChanged(address: String?, status: Int) {
             when (status) {
                 Constants.STATUS_CONNECTED -> {
-                    val currentAddress = deviceStorage.saveAddress(address)
-                    VPLogger.i("Connected to device: $currentAddress")
+                    VPLogger.i("Connected to device: $address")
                 }
                 Constants.STATUS_DISCONNECTED -> {
-                    deviceStorage.saveAddress(null)
-                    VPLogger.i("Disconnected from device, resetting currentAddress.")
+                    VPLogger.i("Disconnected from device, resetting $address.")
                 }
             }
         }
@@ -241,22 +284,22 @@ class VPBluetoothManager(
         }
     }
 
-    private fun passwordDataListener(password: String, is24H: Boolean, onStatus: (DeviceBindingStatus?) -> Unit): IPwdDataListener {
+    private fun passwordDataListener(password: String, is24H: Boolean, onStatus: (DeviceBindingStatuses?) -> Unit): IPwdDataListener {
         return object : IPwdDataListener {
             override fun onPwdDataChange(data: PwdData?) {
                 VPLogger.i("Password binding result: $data")
 
                 val status = when (data?.getmStatus()) {
-                    EPwdStatus.CHECK_FAIL -> DeviceBindingStatus.CHECK_FAIL
-                    EPwdStatus.UNKNOW -> DeviceBindingStatus.UNKNOWN
-                    EPwdStatus.CHECK_SUCCESS -> DeviceBindingStatus.CHECK_SUCCESS
-                    EPwdStatus.SETTING_FAIL -> DeviceBindingStatus.SETTING_FAIL
-                    EPwdStatus.SETTING_SUCCESS -> DeviceBindingStatus.SETTING_SUCCESS
-                    EPwdStatus.READ_FAIL -> DeviceBindingStatus.READ_FAIL
-                    EPwdStatus.READ_SUCCESS -> DeviceBindingStatus.READ_SUCCESS
+                    EPwdStatus.CHECK_FAIL -> DeviceBindingStatuses.CHECK_FAIL
+                    EPwdStatus.UNKNOW -> DeviceBindingStatuses.UNKNOWN
+                    EPwdStatus.CHECK_SUCCESS -> DeviceBindingStatuses.CHECK_SUCCESS
+                    EPwdStatus.SETTING_FAIL -> DeviceBindingStatuses.SETTING_FAIL
+                    EPwdStatus.SETTING_SUCCESS -> DeviceBindingStatuses.SETTING_SUCCESS
+                    EPwdStatus.READ_FAIL -> DeviceBindingStatuses.READ_FAIL
+                    EPwdStatus.READ_SUCCESS -> DeviceBindingStatuses.READ_SUCCESS
                     EPwdStatus.CHECK_AND_TIME_SUCCESS -> {
                         deviceStorage.saveCredentials(password, is24H)
-                        DeviceBindingStatus.CHECK_AND_TIME_SUCCESS
+                        DeviceBindingStatuses.CHECK_AND_TIME_SUCCESS
                     }
                     null -> null
                 }

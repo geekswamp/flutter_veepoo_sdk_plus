@@ -1,17 +1,21 @@
 library flutter_veepoo_sdk;
 
 import 'package:flutter_veepoo_sdk/statuses/device_binding_statuses.dart';
+import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
 
 import 'flutter_veepoo_sdk_platform_interface.dart';
-import 'models/bluetooth_result.dart';
-import 'models/heart_rate_result.dart';
+import 'models/bluetooth_device.dart';
+import 'models/heart_rate.dart';
 
 export 'exceptions/device_connection_exception.dart';
 export 'exceptions/heart_detection_exception.dart';
-export 'models/bluetooth_result.dart';
-export 'models/heart_rate_result.dart';
+export 'exceptions/permission_exception.dart';
+export 'exceptions/unexpected_event_type_exception.dart';
+export 'models/bluetooth_device.dart';
+export 'models/heart_rate.dart';
 export 'statuses/device_binding_statuses.dart';
 export 'statuses/heart_statuses.dart';
+export 'statuses/permission_statuses.dart';
 
 /// {@template flutter_veepoo_sdk}
 /// A Flutter plugin for Veepoo SDK.
@@ -23,7 +27,7 @@ class FlutterVeepooSdk {
   final FlutterVeepooSdkPlatform _platform = FlutterVeepooSdkPlatform.instance;
 
   /// Requests the necessary permissions to use Bluetooth.
-  Future<void> requestBluetoothPermissions() {
+  Future<PermissionStatus?> requestBluetoothPermissions() {
     return _platform.requestBluetoothPermissions();
   }
 
@@ -53,7 +57,17 @@ class FlutterVeepooSdk {
     return _platform.bindDevice(password, is24H);
   }
 
-  /// Checks if a device is connected.
+  /// Get connected device address.
+  Future<String?> getAddress() {
+    return _platform.getAddress();
+  }
+
+  /// Get current status.
+  Future<int?> getCurrentStatus() {
+    return _platform.getCurrentStatus();
+  }
+
+  /// Check if the device is connected.
   Future<bool?> isDeviceConnected() {
     return _platform.isDeviceConnected();
   }
@@ -77,12 +91,12 @@ class FlutterVeepooSdk {
   }
 
   /// Stream of Bluetooth scan results.
-  Stream<List<BluetoothResult>?> get scanBluetoothResult {
+  Stream<List<BluetoothDevice>?> get scanBluetoothResult {
     return _platform.scanBluetoothResult;
   }
 
   /// Stream of heart rate results.
-  Stream<HeartRateResult?> get heartRateResult {
+  Stream<HeartRate?> get heartRateResult {
     return _platform.heartRateResult;
   }
 }

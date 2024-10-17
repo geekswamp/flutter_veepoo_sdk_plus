@@ -1,5 +1,7 @@
 package site.shasmatic.flutter_veepoo_sdk
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.shareprence.VpSpGetUtil
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -75,14 +77,20 @@ class FlutterVeepooSdkPlugin: FlutterPlugin, ActivityAware {
     stopChannels()
   }
 
+  @RequiresApi(Build.VERSION_CODES.S)
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     methodChannelHandler.setActivity(binding.activity)
+    binding.addRequestPermissionsResultListener { requestCode, permissions, grantResults ->
+      methodChannelHandler.onRequestPermissionsResult(requestCode, permissions, grantResults)
+      true
+    }
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
     onDetachedFromActivity()
   }
 
+  @RequiresApi(Build.VERSION_CODES.S)
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     onAttachedToActivity(binding)
   }

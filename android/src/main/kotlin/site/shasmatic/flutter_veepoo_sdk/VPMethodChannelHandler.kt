@@ -1,7 +1,6 @@
 package site.shasmatic.flutter_veepoo_sdk
 
 import android.app.Activity
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.veepoo.protocol.VPOperateManager
@@ -10,6 +9,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
+import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import site.shasmatic.flutter_veepoo_sdk.utils.DeviceStorage
 import site.shasmatic.flutter_veepoo_sdk.utils.HeartRate
 import site.shasmatic.flutter_veepoo_sdk.utils.VPBluetoothManager
@@ -35,10 +35,6 @@ class VPMethodChannelHandler(
     private var detectHeartEventSink: EventChannel.EventSink? = null
     private var detectSpohEventSink: EventChannel.EventSink? = null
 
-    companion object {
-        private const val REQUEST_PERMISSIONS = 2
-    }
-
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val address = call.argument<String>("address")
@@ -53,6 +49,8 @@ class VPMethodChannelHandler(
             "connectDevice" -> handleConnectDevice(address)
             "bindDevice" -> handleBindDevice(password, is24H)
             "disconnectDevice" -> handleDisconnectDevice()
+            "getAddress" -> handleGetAddress()
+            "getCurrentStatus" -> handleGetCurrentStatus()
             "isDeviceConnected" -> handleIsDeviceConnected()
             "startDetectHeart" -> handleStartDetectHeart()
             "stopDetectHeart" -> handleStopDetectHeart()
@@ -62,7 +60,19 @@ class VPMethodChannelHandler(
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleRequestBluetoothPermissions() {
-        getBluetoothManager(result!!).requestBluetoothPermissions()
+        try {
+            getBluetoothManager(result!!).requestBluetoothPermissions { granted ->
+                if (granted) {
+                    result?.success("PERMISSION_GRANTED")
+                } else {
+                    result?.success("PERMISSION_DENIED")
+                }
+            }
+        } catch (e: SecurityException) {
+            throw VPException("Error requesting Bluetooth permissions: ${e.message}", e.cause)
+        } catch (e: Exception) {
+            throw VPException("Error requesting Bluetooth permissions: ${e.message}", e.cause)
+        }
     }
 
     private fun handleScanDevices() {
@@ -99,8 +109,16 @@ class VPMethodChannelHandler(
         getBluetoothManager(result!!).disconnectDevice()
     }
 
+    private fun handleGetAddress() {
+        getBluetoothManager(result!!).getAddress()
+    }
+
+    private fun handleGetCurrentStatus() {
+        getBluetoothManager(result!!).getCurrentStatus()
+    }
+
     private fun handleIsDeviceConnected() {
-        result?.success(getBluetoothManager(result!!).isDeviceConnected())
+        getBluetoothManager(result!!).isDeviceConnected()
     }
 
     private fun handleStartDetectHeart() {
@@ -111,19 +129,10 @@ class VPMethodChannelHandler(
         getHeartRateManager().stopDetectHeart()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String?>, grantResults: IntArray): Boolean {
-        if (requestCode == REQUEST_PERMISSIONS) {
-            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                result?.success(null)
-            } else {
-                result?.error("PERMISSION_DENIED", "Permission denied by user", null)
-            }
-
-            result = null
-            return true
-        }
-
-        return false
+        getBluetoothManager(result!!).onRequestPermissionsResult(requestCode, permissions, grantResults)
+        return true
     }
 
     fun setActivity(activity: Activity?) {

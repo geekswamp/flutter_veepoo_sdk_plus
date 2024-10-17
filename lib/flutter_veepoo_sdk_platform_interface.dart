@@ -1,9 +1,10 @@
-import 'package:flutter_veepoo_sdk/models/heart_rate_result.dart';
 import 'package:flutter_veepoo_sdk/statuses/device_binding_statuses.dart';
+import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'flutter_veepoo_sdk_method_channel.dart';
-import 'models/bluetooth_result.dart';
+import 'models/bluetooth_device.dart';
+import 'models/heart_rate.dart';
 
 /// The interface that implementations of flutter_veepoo_sdk must implement.
 abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
@@ -28,7 +29,7 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
   }
 
   /// Requests the necessary permissions to use Bluetooth.
-  Future<void> requestBluetoothPermissions() {
+  Future<PermissionStatus?> requestBluetoothPermissions() {
     throw UnimplementedError(
       'requestBluetoothPermissions() has not been implemented.',
     );
@@ -60,7 +61,17 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
     throw UnimplementedError('disconnectDevice() has not been implemented.');
   }
 
-  /// Checks if a device is connected.
+  /// Get the address of the connected device.
+  Future<String?> getAddress() {
+    throw UnimplementedError('getAddress() has not been implemented.');
+  }
+
+  /// Get the current status of the device.
+  Future<int?> getCurrentStatus() {
+    throw UnimplementedError('getCurrentStatus() has not been implemented.');
+  }
+
+  /// Check if the device is connected.
   Future<bool?> isDeviceConnected() {
     throw UnimplementedError('isDeviceConnected() has not been implemented.');
   }
@@ -86,14 +97,14 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
   }
 
   /// Stream of Bluetooth scan results.
-  Stream<List<BluetoothResult>?> get scanBluetoothResult {
+  Stream<List<BluetoothDevice>?> get scanBluetoothResult {
     throw UnimplementedError(
       'scanBluetoothEventChannel has not been implemented.',
     );
   }
 
   /// Stream of heart rate results.
-  Stream<HeartRateResult?> get heartRateResult {
+  Stream<HeartRate?> get heartRateResult {
     throw UnimplementedError('heartRateEventChannel has not been implemented.');
   }
 }
