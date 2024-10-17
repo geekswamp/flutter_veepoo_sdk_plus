@@ -1,13 +1,10 @@
 package site.shasmatic.flutter_veepoo_sdk.utils
 
-import com.inuker.bluetooth.library.Constants
 import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.IHeartDataListener
 import com.veepoo.protocol.model.datas.HeartData
-import com.veepoo.protocol.shareprence.VpSpGetUtil
 import io.flutter.plugin.common.EventChannel
-import site.shasmatic.flutter_veepoo_sdk.DeviceBindingStatus
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import java.lang.reflect.InvocationTargetException
@@ -15,7 +12,7 @@ import java.lang.reflect.InvocationTargetException
 /**
  * Utility class for sending heart rate events via an [EventChannel.EventSink].
  *
- * @constructor Creates a new [HeartRate] instance with the specified event sink, [VPOperateManager], and [VPBluetoothManager].
+ * @constructor Creates a new [HeartRate] instance with the specified event sink, and [VPOperateManager].
  * @param heartRateEventSink The sink that receives the heart rate events.
  * @param vpManager The [VPOperateManager] used to control device operations.
  */
@@ -56,9 +53,7 @@ class HeartRate(
 
     private val writeResponseCallBack = object : IBleWriteResponse {
         override fun onResponse(status: Int) {
-            if (status != Constants.REQUEST_SUCCESS) {
-                VPLogger.d("Write response: $status")
-            }
+            VPLogger.d("Write response: $status")
         }
     }
 
