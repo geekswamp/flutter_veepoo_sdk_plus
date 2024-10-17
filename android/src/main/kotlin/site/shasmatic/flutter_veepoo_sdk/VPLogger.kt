@@ -13,6 +13,7 @@ object VPLogger {
 
     /**
      * Logs a debug message with the specified tag.
+     *
      * @param message The message to be logged.
      * @see Log.d
      */
@@ -22,6 +23,7 @@ object VPLogger {
 
     /**
      * Logs an informational message with the specified tag.
+     *
      * @param message The message to be logged.
      * @see Log.i
      */
@@ -31,6 +33,7 @@ object VPLogger {
 
     /**
      * Logs a warning message with the specified tag.
+     *
      * @param message The message to be logged.
      * @see Log.w
      */
@@ -40,6 +43,7 @@ object VPLogger {
 
     /**
      * Logs an error message with the specified tag.
+     *
      * @param message The message to be logged.
      * @see Log.e
      */
