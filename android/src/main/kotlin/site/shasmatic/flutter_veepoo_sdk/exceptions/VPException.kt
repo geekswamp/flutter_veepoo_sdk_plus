@@ -9,4 +9,14 @@ package site.shasmatic.flutter_veepoo_sdk.exceptions
  * @see Exception
  * @see Throwable
  */
-class VPException(message: String, cause: Throwable? = null) : Exception(message, cause)
+class VPException(message: String, cause: Throwable? = null) : Exception(message, cause) {
+
+    /**
+     * Returns a string representation of the exception.
+     *
+     * @return A string representation of the exception.
+     */
+    override fun toString(): String {
+        return "VPException: $message, ${cause?.message}"
+    }
+}
