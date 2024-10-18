@@ -31,6 +31,21 @@ class FlutterVeepooSdk {
     return _platform.requestBluetoothPermissions();
   }
 
+  /// Check if Bluetooth is enabled.
+  Future<bool?> isBluetoothEnabled() {
+    return _platform.isBluetoothEnabled();
+  }
+
+  /// Open Bluetooth.
+  Future<void> openBluetooth() {
+    return _platform.openBluetooth();
+  }
+
+  /// Close Bluetooth.
+  Future<void> closeBluetooth() {
+    return _platform.closeBluetooth();
+  }
+
   /// Scans Bluetooth devices.
   Future<void> scanDevices() {
     return _platform.scanDevices();

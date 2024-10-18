@@ -44,6 +44,9 @@ class VPMethodChannelHandler(
 
         when(call.method) {
             "requestBluetoothPermissions" -> handleRequestBluetoothPermissions()
+            "isBluetoothEnabled" -> handleIsBluetoothEnabled()
+            "openBluetooth" -> handleOpenBluetooth()
+            "closeBluetooth" -> handleCloseBluetooth()
             "scanDevices" -> handleScanDevices()
             "stopScanDevices" -> handleStopScanDevices()
             "connectDevice" -> handleConnectDevice(address)
@@ -73,6 +76,18 @@ class VPMethodChannelHandler(
         } catch (e: Exception) {
             throw VPException("Error requesting Bluetooth permissions: ${e.message}", e.cause)
         }
+    }
+
+    private fun handleIsBluetoothEnabled() {
+        getBluetoothManager(result!!).isBluetoothEnabled()
+    }
+
+    private fun handleOpenBluetooth() {
+        getBluetoothManager(result!!).openBluetooth()
+    }
+
+    private fun handleCloseBluetooth() {
+        getBluetoothManager(result!!).closeBluetooth()
     }
 
     private fun handleScanDevices() {

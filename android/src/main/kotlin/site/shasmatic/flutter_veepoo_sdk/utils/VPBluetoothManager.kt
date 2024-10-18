@@ -111,6 +111,29 @@ class VPBluetoothManager(
     }
 
     /**
+     * Checks if Bluetooth is enabled on the device.
+     */
+    fun isBluetoothEnabled(): Boolean {
+        val isEnabled = vpManager.isBluetoothOpened
+        result.success(isEnabled)
+        return vpManager.isBluetoothOpened
+    }
+
+    /**
+     * Opens the Bluetooth adapter.
+     */
+    fun openBluetooth() {
+        vpManager.openBluetooth()
+    }
+
+    /**
+     * Closes the Bluetooth adapter.
+     */
+    fun closeBluetooth() {
+        vpManager.closeBluetooth()
+    }
+
+    /**
      * Scans all available Bluetooth devices.
      */
     fun scanDevices() {

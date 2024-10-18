@@ -38,6 +38,26 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
     }
   }
 
+  /// Checks if Bluetooth is enabled.
+  @override
+  Future<bool?> isBluetoothEnabled() async {
+    final bool? isEnabled =
+        await methodChannel.invokeMethod<bool>('isBluetoothEnabled');
+    return isEnabled;
+  }
+
+  /// Opens Bluetooth.
+  @override
+  Future<void> openBluetooth() async {
+    await methodChannel.invokeMethod<void>('openBluetooth');
+  }
+
+  /// Closes Bluetooth.
+  @override
+  Future<void> closeBluetooth() async {
+    await methodChannel.invokeListMethod('closeBluetooth');
+  }
+
   /// Starts scanning for Bluetooth devices.
   @override
   Future<void> scanDevices() async {

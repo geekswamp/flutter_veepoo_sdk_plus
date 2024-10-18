@@ -35,6 +35,23 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
     );
   }
 
+  /// Check if Bluetooth is enabled.
+  Future<bool?> isBluetoothEnabled() {
+    throw UnimplementedError(
+      'isBluetoothEnabled() has not been implemented.',
+    );
+  }
+
+  /// Open Bluetooth.
+  Future<void> openBluetooth() {
+    throw UnimplementedError('openBluetooth() has not been implemented.');
+  }
+
+  /// Close Bluetooth.
+  Future<void> closeBluetooth() {
+    throw UnimplementedError('closeBluetooth() has not been implemented.');
+  }
+
   /// Scans Bluetooth devices.
   Future<void> scanDevices() {
     throw UnimplementedError('scanDevices() has not been implemented.');
