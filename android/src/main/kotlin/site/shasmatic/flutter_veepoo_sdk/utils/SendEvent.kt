@@ -41,19 +41,6 @@ class SendEvent(private val eventSink: EventChannel.EventSink?) {
     }
 
     /**
-     * Sends a heart warning event with the given heart warning data.
-     *
-     * This method is responsible for sending heart warning events to the
-     * [EventChannel.EventSink]. The event data is provided as a map
-     * containing key-value pairs representing the heart warning data.
-     *
-     * @param heartWarningData A map containing the heart warning data.
-     */
-    fun sendHeartWarningEvent(heartWarningData: Map<String, Any>) {
-        sendEvent(heartWarningData)
-    }
-
-    /**
      * Sends a SpO2 event with the given SpO2 data.
      *
      * This method is responsible for sending SpO2 events to the

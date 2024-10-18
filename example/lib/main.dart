@@ -82,6 +82,14 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void _settingHeartWarning() async {
+    await _flutterVeepooSdkPlugin.settingHeartRate(70, 60, true);
+  }
+
+  void _readHeartWarning() async {
+    await _flutterVeepooSdkPlugin.readHeartRate();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -149,6 +157,15 @@ class _MyAppState extends State<MyApp> {
                 child: const Text('Stop Detect Heart'),
               ),
               const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _settingHeartWarning,
+                child: const Text('Setting Heart Warning'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _readHeartWarning,
+                child: const Text('Read Heart Warning'),
+              ),
               const Text(
                 'Bluetooth Devices:',
                 style: TextStyle(fontWeight: FontWeight.bold),

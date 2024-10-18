@@ -56,7 +56,7 @@ class FlutterVeepooSdk {
     return _platform.stopScanDevices();
   }
 
-  /// Connects to a Bluetooth device.
+  /// Connects to a Bluetooth device, or you can simply use [connectAndBindDevice] to connect and bind device.
   Future<void> connectDevice(String address) {
     return _platform.connectDevice(address);
   }
@@ -66,7 +66,7 @@ class FlutterVeepooSdk {
     return _platform.disconnectDevice();
   }
 
-  /// Bind device with password and is24H.
+  /// Bind device with password and is24H. This function can be used after successfully connecting to the device.
   /// This function will return a [DeviceBindingStatus] to indicate the status of the device binding.
   Future<DeviceBindingStatus?> bindDevice(String password, bool is24H) {
     return _platform.bindDevice(password, is24H);
@@ -103,6 +103,16 @@ class FlutterVeepooSdk {
   /// Stop detect heart rate.
   Future<void> stopDetectHeart() {
     return _platform.stopDetectHeart();
+  }
+
+  /// Setting heart rate warning.
+  Future<void> settingHeartRate(int high, int low, bool open) {
+    return _platform.settingHeartWarning(high, low, open);
+  }
+
+  /// Read heart rate warning.
+  Future<void> readHeartRate() {
+    return _platform.readHeartWarning();
   }
 
   /// Stream of Bluetooth scan results.

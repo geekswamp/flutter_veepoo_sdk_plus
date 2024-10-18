@@ -113,6 +113,16 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
     throw UnimplementedError('stopDetectHeart() has not been implemented.');
   }
 
+  /// Setting heart rate warning.
+  Future<void> settingHeartWarning(int high, int low, bool open) {
+    throw UnimplementedError('settingHeartWarning() has not been implemented.');
+  }
+
+  /// Read heart rate warning.
+  Future<void> readHeartWarning() {
+    throw UnimplementedError('readHeartWarning() has not been implemented.');
+  }
+
   /// Stream of Bluetooth scan results.
   Stream<List<BluetoothDevice>?> get scanBluetoothResult {
     throw UnimplementedError(

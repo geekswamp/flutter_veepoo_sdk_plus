@@ -40,6 +40,9 @@ class VPMethodChannelHandler(
         val address = call.argument<String>("address")
         val password = call.argument<String>("password")
         val is24H = call.argument<Boolean>("is24H")
+        val high = call.argument<Int>("high")
+        val low = call.argument<Int>("low")
+        val open = call.argument<Boolean>("open")
         this.result = result
 
         when(call.method) {
@@ -57,6 +60,8 @@ class VPMethodChannelHandler(
             "isDeviceConnected" -> handleIsDeviceConnected()
             "startDetectHeart" -> handleStartDetectHeart()
             "stopDetectHeart" -> handleStopDetectHeart()
+            "settingHeartWarning" -> handleSettingHeartWarning(high, low, open)
+            "readHeartWarning" -> handleReadHeartWarning()
             else -> result.notImplemented()
         }
     }
@@ -142,6 +147,18 @@ class VPMethodChannelHandler(
 
     private fun handleStopDetectHeart() {
         getHeartRateManager().stopDetectHeart()
+    }
+
+    private fun handleSettingHeartWarning(high: Int?, low: Int?, open: Boolean?) {
+        if (high != null && low != null && open != null) {
+            getHeartRateManager().settingHeartWarning(high, low, open)
+        } else {
+            result?.error("INVALID_ARGUMENT", "High, low, and open values are required", null)
+        }
+    }
+
+    private fun handleReadHeartWarning() {
+        getHeartRateManager().readHeartWarning()
     }
 
     @RequiresApi(Build.VERSION_CODES.S)

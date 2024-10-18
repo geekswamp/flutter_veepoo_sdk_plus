@@ -145,15 +145,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   @override
   Future<DeviceBindingStatus?> bindDevice(String password, bool is24H) async {
     try {
-      if (await isDeviceConnected() == true) {
-        final String? result = await methodChannel.invokeMethod<String>(
-          'bindDevice',
-          {'password': password, 'is24H': is24H},
-        );
-        return result != null ? DeviceBindingStatus.fromString(result) : null;
-      } else {
-        throw DeviceConnectionException('Device is not connected');
-      }
+      final String? result = await methodChannel.invokeMethod<String>(
+        'bindDevice',
+        {'password': password, 'is24H': is24H},
+      );
+
+      return result != null ? DeviceBindingStatus.fromString(result) : null;
     } on PlatformException catch (e) {
       throw DeviceConnectionException('Failed to bind device: $e');
     }
@@ -206,6 +203,21 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
     } on PlatformException catch (e) {
       throw HeartDetectionException('Failed to stop detect heart: $e');
     }
+  }
+
+  /// Setting heart rate warning.
+  @override
+  Future<void> settingHeartWarning(int high, int low, bool open) async {
+    await methodChannel.invokeMethod<void>(
+      'settingHeartWarning',
+      {'high': high, 'low': low, 'open': open},
+    );
+  }
+
+  /// Read heart rate warning.
+  @override
+  Future<void> readHeartWarning() async {
+    await methodChannel.invokeMethod<void>('readHeartWarning');
   }
 
   /// Stream of Bluetooth scan results.

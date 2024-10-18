@@ -31,11 +31,11 @@ class FlutterVeepooSdkPlugin: FlutterPlugin, ActivityAware {
   }
 
   companion object {
-      private const val CHANNEL = "site.shasmatic.flutter_veepoo_sdk"
-      private const val COMMAND_CHANNEL = "$CHANNEL/command"
-      private const val SCAN_BLUETOOTH_EVENT_CHANNEL = "$CHANNEL/scan_bluetooth_event_channel"
-      private const val DETECT_HEART_EVENT_CHANNEL = "$CHANNEL/detect_heart_event_channel"
-      private const val DETECT_SPOH_EVENT_CHANNEL = "$CHANNEL/detect_spoh_event_channel"
+    private const val CHANNEL = "site.shasmatic.flutter_veepoo_sdk"
+    private const val COMMAND_CHANNEL = "$CHANNEL/command"
+    private const val SCAN_BLUETOOTH_EVENT_CHANNEL = "$CHANNEL/scan_bluetooth_event_channel"
+    private const val DETECT_HEART_EVENT_CHANNEL = "$CHANNEL/detect_heart_event_channel"
+    private const val DETECT_SPOH_EVENT_CHANNEL = "$CHANNEL/detect_spoh_event_channel"
   }
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {

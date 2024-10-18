@@ -3,7 +3,10 @@ package site.shasmatic.flutter_veepoo_sdk.utils
 import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.IHeartDataListener
+import com.veepoo.protocol.listener.data.IHeartWaringDataListener
 import com.veepoo.protocol.model.datas.HeartData
+import com.veepoo.protocol.model.datas.HeartWaringData
+import com.veepoo.protocol.model.settings.HeartWaringSetting
 import io.flutter.plugin.common.EventChannel
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
@@ -41,6 +44,27 @@ class HeartRate(
         }
     }
 
+    /**
+     * Sets the heart rate warning values.
+     *
+     * @param high The high heart rate warning value.
+     * @param low The low heart rate warning value.
+     */
+    fun settingHeartWarning(high: Int, low: Int, open: Boolean) {
+        executeHeartRateOperation {
+            vpManager.settingHeartWarning(writeResponseCallBack, heartWarningDataCallBack, heartWarningSetting(high, low, open))
+        }
+    }
+
+    /**
+     * Reads the heart rate warning values.
+     */
+    fun readHeartWarning() {
+        executeHeartRateOperation {
+            vpManager.readHeartWarning(writeResponseCallBack, heartWarningDataCallBack)
+        }
+    }
+
     private fun executeHeartRateOperation(operation: () -> Unit) {
         try {
             operation()
@@ -65,5 +89,30 @@ class HeartRate(
             )
             sendEvent.sendHeartRateEvent(heartResult)
         }
+    }
+
+    private val heartWarningDataCallBack = object : IHeartWaringDataListener {
+        override fun onHeartWaringDataChange(data: HeartWaringData?) {
+            VPLogger.d("Heart warning data: $data")
+//            HeartWarningData(
+//                status = HeartWarningStatuses.valueOf(data?.status?.name ?: ""),
+//                high = data?.heartHigh,
+//                low = data?.heartLow,
+//                open = data?.isOpen
+//            ).also {
+//                val heartWarningResult = mapOf(
+//                    "status" to it.status?.name,
+//                    "high" to it.high,
+//                    "low" to it.low,
+//                    "open" to it.open
+//                )
+//
+//                sendEvent.sendHeartWarningEvent(heartWarningResult)
+//            }
+        }
+    }
+
+    private fun heartWarningSetting(high: Int, low: Int, open: Boolean): HeartWaringSetting {
+        return HeartWaringSetting(high, low, open)
     }
 }
