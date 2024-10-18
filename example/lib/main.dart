@@ -17,6 +17,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _flutterVeepooSdkPlugin = FlutterVeepooSdk();
   final List<BluetoothDevice> _bluetoothDevices = [];
+  bool? _isEnabled = false;
 
   @override
   void initState() {
@@ -28,6 +29,21 @@ class _MyAppState extends State<MyApp> {
     final PermissionStatus? status =
         await _flutterVeepooSdkPlugin.requestBluetoothPermissions();
     debugPrint('Permission status: $status');
+  }
+
+  void _isBluetoothEnabled() async {
+    final bool? isEnabled = await _flutterVeepooSdkPlugin.isBluetoothEnabled();
+    setState(() {
+      _isEnabled = isEnabled;
+    });
+  }
+
+  void _openBluetooth() async {
+    await _flutterVeepooSdkPlugin.openBluetooth();
+  }
+
+  void _closeBluetooth() async {
+    await _flutterVeepooSdkPlugin.closeBluetooth();
   }
 
   void _scanDevices() async {
@@ -93,6 +109,26 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
+              Text(
+                'Is Bluetooth enabled: $_isEnabled',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _isBluetoothEnabled,
+                child: const Text('Is Bluetooth Enabled'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _openBluetooth,
+                child: const Text('Open Bluetooth'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _closeBluetooth,
+                child: const Text('Close Bluetooth'),
+              ),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _scanDevices,
                 child: const Text('Scan Bluetooth Devices'),
