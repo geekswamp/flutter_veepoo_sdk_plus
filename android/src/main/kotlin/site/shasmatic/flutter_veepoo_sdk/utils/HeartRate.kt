@@ -94,21 +94,6 @@ class HeartRate(
     private val heartWarningDataCallBack = object : IHeartWaringDataListener {
         override fun onHeartWaringDataChange(data: HeartWaringData?) {
             VPLogger.d("Heart warning data: $data")
-//            HeartWarningData(
-//                status = HeartWarningStatuses.valueOf(data?.status?.name ?: ""),
-//                high = data?.heartHigh,
-//                low = data?.heartLow,
-//                open = data?.isOpen
-//            ).also {
-//                val heartWarningResult = mapOf(
-//                    "status" to it.status?.name,
-//                    "high" to it.high,
-//                    "low" to it.low,
-//                    "open" to it.open
-//                )
-//
-//                sendEvent.sendHeartWarningEvent(heartWarningResult)
-//            }
         }
     }
 
