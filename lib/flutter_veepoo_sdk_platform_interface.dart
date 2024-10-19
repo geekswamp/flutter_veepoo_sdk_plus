@@ -29,9 +29,16 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
   }
 
   /// Requests the necessary permissions to use Bluetooth.
-  Future<PermissionStatus?> requestBluetoothPermissions() {
+  Future<PermissionStatuses?> requestBluetoothPermissions() {
     throw UnimplementedError(
       'requestBluetoothPermissions() has not been implemented.',
+    );
+  }
+
+  /// Open app settings.
+  Future<void> openAppSettings() {
+    throw UnimplementedError(
+      'openAppSettings() has not been implemented.',
     );
   }
 
@@ -124,14 +131,14 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
   }
 
   /// Stream of Bluetooth scan results.
-  Stream<List<BluetoothDevice>?> get scanBluetoothResult {
+  Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
     throw UnimplementedError(
       'scanBluetoothEventChannel has not been implemented.',
     );
   }
 
   /// Stream of heart rate results.
-  Stream<HeartRate?> get heartRateResult {
+  Stream<HeartRate?> get heartRate {
     throw UnimplementedError('heartRateEventChannel has not been implemented.');
   }
 }

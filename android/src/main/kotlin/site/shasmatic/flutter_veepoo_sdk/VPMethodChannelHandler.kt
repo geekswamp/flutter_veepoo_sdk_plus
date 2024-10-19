@@ -9,7 +9,6 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
-import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import site.shasmatic.flutter_veepoo_sdk.utils.DeviceStorage
 import site.shasmatic.flutter_veepoo_sdk.utils.HeartRate
 import site.shasmatic.flutter_veepoo_sdk.utils.VPBluetoothManager
@@ -47,6 +46,7 @@ class VPMethodChannelHandler(
 
         when(call.method) {
             "requestBluetoothPermissions" -> handleRequestBluetoothPermissions()
+            "openAppSettings" -> handleOpenAppSettings()
             "isBluetoothEnabled" -> handleIsBluetoothEnabled()
             "openBluetooth" -> handleOpenBluetooth()
             "closeBluetooth" -> handleCloseBluetooth()
@@ -68,41 +68,38 @@ class VPMethodChannelHandler(
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleRequestBluetoothPermissions() {
-        try {
-            getBluetoothManager(result!!).requestBluetoothPermissions { granted ->
-                if (granted) {
-                    result?.success("PERMISSION_GRANTED")
-                } else {
-                    result?.success("PERMISSION_DENIED")
-                }
-            }
-        } catch (e: SecurityException) {
-            throw VPException("Error requesting Bluetooth permissions: ${e.message}", e.cause)
-        } catch (e: Exception) {
-            throw VPException("Error requesting Bluetooth permissions: ${e.message}", e.cause)
-        }
+        getBluetoothManager(result!!).requestBluetoothPermissions()
+    }
+
+    private fun handleOpenAppSettings() {
+        getBluetoothManager(result!!).openAppSettings()
     }
 
     private fun handleIsBluetoothEnabled() {
         getBluetoothManager(result!!).isBluetoothEnabled()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun handleOpenBluetooth() {
         getBluetoothManager(result!!).openBluetooth()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun handleCloseBluetooth() {
         getBluetoothManager(result!!).closeBluetooth()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun handleScanDevices() {
         getBluetoothManager(result!!).scanDevices()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun handleStopScanDevices() {
         getBluetoothManager(result!!).stopScanDevices()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun handleConnectDevice(address: String?) {
         if (address != null) {
             getBluetoothManager(result!!).connectDevice(address)
@@ -125,6 +122,7 @@ class VPMethodChannelHandler(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun handleDisconnectDevice() {
         getBluetoothManager(result!!).disconnectDevice()
     }
@@ -163,7 +161,7 @@ class VPMethodChannelHandler(
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String?>, grantResults: IntArray): Boolean {
-        getBluetoothManager(result!!).onRequestPermissionsResult(requestCode, permissions, grantResults)
+        getBluetoothManager(result!!).onRequestPermissionsResult(requestCode, grantResults)
         return true
     }
 

@@ -1,22 +1,31 @@
 /// {@template permission_status}
 /// The status of a permission.
 /// {@endtemplate}
-enum PermissionStatus {
+enum PermissionStatuses {
   /// The permission to access the requested feature is denied by the user.
-  denied('PERMISSION_DENIED'),
+  denied('DENIED'),
 
   /// The permission to access the requested feature is granted by the user.
-  granted('PERMISSION_GRANTED');
+  granted('GRANTED'),
+
+  /// The permission to access the requested feature is permanently denied by the user.
+  permanentlyDenied('PERMANENTLY_DENIED'),
+
+  /// The permission to access the requested feature is restricted by the user.
+  restricted('RESTRICTED'),
+
+  /// The permission to access the requested feature is unknown.
+  unknown('UNKNOWN');
 
   /// {@macro permission_status}
-  const PermissionStatus(this.statusValue);
+  const PermissionStatuses(this.statusValue);
 
   /// The value of the status.
   final String statusValue;
 
-  /// Converts a string to a [PermissionStatus].
-  static PermissionStatus fromString(String status) {
-    return PermissionStatus.values.firstWhere((e) => e.statusValue == status);
+  /// Converts a string to a [PermissionStatuses].
+  static PermissionStatuses fromString(String status) {
+    return PermissionStatuses.values.firstWhere((e) => e.statusValue == status);
   }
 
   @override

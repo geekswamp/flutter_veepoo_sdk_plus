@@ -27,8 +27,13 @@ class FlutterVeepooSdk {
   final FlutterVeepooSdkPlatform _platform = FlutterVeepooSdkPlatform.instance;
 
   /// Requests the necessary permissions to use Bluetooth.
-  Future<PermissionStatus?> requestBluetoothPermissions() {
+  Future<PermissionStatuses?> requestBluetoothPermissions() {
     return _platform.requestBluetoothPermissions();
+  }
+
+  /// Open app settings.
+  Future<void> openAppSettings() {
+    return _platform.openAppSettings();
   }
 
   /// Check if Bluetooth is enabled.
@@ -116,12 +121,12 @@ class FlutterVeepooSdk {
   }
 
   /// Stream of Bluetooth scan results.
-  Stream<List<BluetoothDevice>?> get scanBluetoothResult {
-    return _platform.scanBluetoothResult;
+  Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
+    return _platform.scanBluetoothDevices;
   }
 
   /// Stream of heart rate results.
-  Stream<HeartRate?> get heartRateResult {
-    return _platform.heartRateResult;
+  Stream<HeartRate?> get heartRate {
+    return _platform.heartRate;
   }
 }

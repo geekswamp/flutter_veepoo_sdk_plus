@@ -19,16 +19,12 @@ class _MyAppState extends State<MyApp> {
   final List<BluetoothDevice> _bluetoothDevices = [];
   bool? _isEnabled = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _requestPermissions();
-  }
-
-  Future<void> _requestPermissions() async {
-    final PermissionStatus? status =
+  void _requestPermissions() async {
+    final PermissionStatuses? status =
         await _flutterVeepooSdkPlugin.requestBluetoothPermissions();
-    debugPrint('Permission status: $status');
+    if (status == PermissionStatuses.permanentlyDenied) {
+      await _flutterVeepooSdkPlugin.openAppSettings();
+    }
   }
 
   void _isBluetoothEnabled() async {
@@ -82,14 +78,6 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void _settingHeartWarning() async {
-    await _flutterVeepooSdkPlugin.settingHeartRate(70, 60, true);
-  }
-
-  void _readHeartWarning() async {
-    await _flutterVeepooSdkPlugin.readHeartRate();
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -101,9 +89,8 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: [
               StreamBuilder(
-                stream: _flutterVeepooSdkPlugin.heartRateResult,
+                stream: _flutterVeepooSdkPlugin.heartRate,
                 builder: (context, snapshot) {
-                  debugPrint('Heart rate snapshot: ${snapshot.data}');
                   if (snapshot.hasData) {
                     return Text(
                       'Heart Rate: ${snapshot.data?.data ?? 0}',
@@ -120,6 +107,11 @@ class _MyAppState extends State<MyApp> {
               Text(
                 'Is Bluetooth enabled: $_isEnabled',
                 style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _requestPermissions,
+                child: const Text('Request Permissions'),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
@@ -156,51 +148,42 @@ class _MyAppState extends State<MyApp> {
                 onPressed: _stopDetectHeart,
                 child: const Text('Stop Detect Heart'),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _settingHeartWarning,
-                child: const Text('Setting Heart Warning'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _readHeartWarning,
-                child: const Text('Read Heart Warning'),
-              ),
               const Text(
                 'Bluetooth Devices:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               StreamBuilder(
-                  stream: _flutterVeepooSdkPlugin.scanBluetoothResult,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      _bluetoothDevices.clear();
-                      _bluetoothDevices.addAll(snapshot.data ?? []);
+                stream: _flutterVeepooSdkPlugin.scanBluetoothDevices,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    _bluetoothDevices.clear();
+                    _bluetoothDevices.addAll(snapshot.data ?? []);
 
-                      return Expanded(
-                        child: ListView.builder(
-                          itemCount: _bluetoothDevices.length,
-                          itemBuilder: (context, index) {
-                            final item = _bluetoothDevices[index];
+                    return Expanded(
+                      child: ListView.builder(
+                        itemCount: _bluetoothDevices.length,
+                        itemBuilder: (context, index) {
+                          final item = _bluetoothDevices[index];
 
-                            return ListTile(
-                              title: Text(item.name ?? 'Unknown'),
-                              subtitle: Text(item.address ?? 'Unknown'),
-                              trailing: Text('${item.rssi ?? 0} dBm'),
-                              onTap: () async {
-                                await _connectDevice(item.address ?? '');
+                          return ListTile(
+                            title: Text(item.name ?? 'Unknown'),
+                            subtitle: Text(item.address ?? 'Unknown'),
+                            trailing: Text('${item.rssi ?? 0} dBm'),
+                            onTap: () async {
+                              await _connectDevice(item.address ?? '');
 
-                                debugPrint(
-                                    'Connected device address: ${await _flutterVeepooSdkPlugin.getAddress()}');
-                              },
-                            );
-                          },
-                        ),
-                      );
-                    } else {
-                      return const Text('No data');
-                    }
-                  }),
+                              debugPrint(
+                                  'Connected device address: ${await _flutterVeepooSdkPlugin.getAddress()}');
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  } else {
+                    return const Text('No data');
+                  }
+                },
+              ),
             ],
           ),
         ),

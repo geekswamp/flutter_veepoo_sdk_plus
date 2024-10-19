@@ -25,16 +25,26 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
 
   /// Requests Bluetooth permissions.
   ///
-  /// Returns a [PermissionStatus] if the request is successful, otherwise null.
+  /// Returns a [PermissionStatuses] if the request is successful, otherwise null.
   /// Throws a [PermissionException] if the request fails.
   @override
-  Future<PermissionStatus?> requestBluetoothPermissions() async {
+  Future<PermissionStatuses?> requestBluetoothPermissions() async {
     try {
       final String? status = await methodChannel
           .invokeMethod<String>('requestBluetoothPermissions');
-      return status != null ? PermissionStatus.fromString(status) : null;
+      return status != null ? PermissionStatuses.fromString(status) : null;
     } on PlatformException catch (e) {
       throw PermissionException('Failed to request permissions: $e');
+    }
+  }
+
+  /// Open app settings.
+  @override
+  Future<void> openAppSettings() async {
+    try {
+      await methodChannel.invokeMethod<void>('openAppSettings');
+    } on PlatformException catch (e) {
+      throw PermissionException('Failed to open app settings: $e');
     }
   }
 
@@ -49,25 +59,41 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   /// Opens Bluetooth.
   @override
   Future<void> openBluetooth() async {
-    await methodChannel.invokeMethod<void>('openBluetooth');
+    try {
+      await methodChannel.invokeMethod<void>('openBluetooth');
+    } on PlatformException catch (e) {
+      throw PermissionException('Failed to open Bluetooth: $e');
+    }
   }
 
   /// Closes Bluetooth.
   @override
   Future<void> closeBluetooth() async {
-    await methodChannel.invokeListMethod('closeBluetooth');
+    try {
+      await methodChannel.invokeMethod<void>('closeBluetooth');
+    } on PlatformException catch (e) {
+      throw PermissionException('Failed to close Bluetooth: $e');
+    }
   }
 
   /// Starts scanning for Bluetooth devices.
   @override
   Future<void> scanDevices() async {
-    await methodChannel.invokeMethod<void>('scanDevices');
+    try {
+      await methodChannel.invokeMethod<void>('scanDevices');
+    } on PlatformException catch (e) {
+      throw DeviceConnectionException('Failed to scan devices: $e');
+    }
   }
 
   /// Stops scanning for Bluetooth devices.
   @override
   Future<void> stopScanDevices() async {
-    await methodChannel.invokeMethod<void>('stopScanDevices');
+    try {
+      await methodChannel.invokeMethod<void>('stopScanDevices');
+    } on PlatformException catch (e) {
+      throw DeviceConnectionException('Failed to stop scan devices: $e');
+    }
   }
 
   /// Connects to a Bluetooth device with the given [address].
@@ -76,10 +102,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   @override
   Future<void> connectDevice(String address) async {
     try {
-      await methodChannel
-          .invokeMethod<void>('connectDevice', {'address': address});
+      await methodChannel.invokeMethod<void>(
+        'connectDevice',
+        {'address': address},
+      );
     } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to connect to device: $e');
+      throw DeviceConnectionException('Failed to connect address $address: $e');
     }
   }
 
@@ -224,7 +252,7 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   ///
   /// Returns a [Stream] of [List] of [BluetoothDevice] objects.
   @override
-  Stream<List<BluetoothDevice>?> get scanBluetoothResult {
+  Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
     return scanBluetoothEventChannel.receiveBroadcastStream().map((event) {
       if (event is List) {
         return event
@@ -244,7 +272,7 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   ///
   /// Returns a [Stream] of [HeartRate] objects.
   @override
-  Stream<HeartRate?> get heartRateResult {
+  Stream<HeartRate?> get heartRate {
     return heartRateEventChannel.receiveBroadcastStream().map((dynamic event) {
       if (event is Map) {
         final result =
