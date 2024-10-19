@@ -139,7 +139,6 @@ class _MyAppState extends State<MyApp> {
                 stream: _flutterVeepooSdkPlugin.scanBluetoothDevices,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    _bluetoothDevices.clear();
                     _bluetoothDevices.addAll(snapshot.data ?? []);
 
                     return Expanded(
