@@ -69,15 +69,7 @@ class VPBluetoothManager(
         if (arePermissionsGranted()) {
             result.success(PermissionStatuses.GRANTED.name)
         } else {
-            requestPermissions { status ->
-                when (status) {
-                    PermissionStatuses.GRANTED -> result.success(PermissionStatuses.GRANTED.name)
-                    PermissionStatuses.DENIED -> result.success(PermissionStatuses.DENIED.name)
-                    PermissionStatuses.PERMANENTLY_DENIED -> result.success(PermissionStatuses.PERMANENTLY_DENIED.name)
-                    PermissionStatuses.RESTRICTED -> result.success(PermissionStatuses.RESTRICTED.name)
-                    PermissionStatuses.UNKNOWN -> result.success(PermissionStatuses.UNKNOWN.name)
-                }
-            }
+            requestPermissions { status -> result.success(status.name)}
         }
     }
 
