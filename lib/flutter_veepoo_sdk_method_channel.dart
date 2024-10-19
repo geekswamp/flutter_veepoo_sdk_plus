@@ -24,7 +24,8 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       const EventChannel('$_channelName/scan_bluetooth_event_channel');
   final EventChannel heartRateEventChannel =
       const EventChannel('$_channelName/detect_heart_event_channel');
-  final EventChannel spohEventChannel = const EventChannel('$_channelName/detect_spoh_event_channel');
+  final EventChannel spohEventChannel =
+      const EventChannel('$_channelName/detect_spoh_event_channel');
 
   /// Requests Bluetooth permissions.
   ///
