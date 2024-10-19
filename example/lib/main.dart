@@ -17,7 +17,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _flutterVeepooSdkPlugin = FlutterVeepooSdk();
   final List<BluetoothDevice> _bluetoothDevices = [];
-  bool? _isEnabled = false;
 
   void _requestPermissions() async {
     final PermissionStatuses? status =
@@ -25,13 +24,6 @@ class _MyAppState extends State<MyApp> {
     if (status == PermissionStatuses.permanentlyDenied) {
       await _flutterVeepooSdkPlugin.openAppSettings();
     }
-  }
-
-  void _isBluetoothEnabled() async {
-    final bool? isEnabled = await _flutterVeepooSdkPlugin.isBluetoothEnabled();
-    setState(() {
-      _isEnabled = isEnabled;
-    });
   }
 
   void _openBluetooth() async {
@@ -104,19 +96,10 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
-              Text(
-                'Is Bluetooth enabled: $_isEnabled',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _requestPermissions,
                 child: const Text('Request Permissions'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _isBluetoothEnabled,
-                child: const Text('Is Bluetooth Enabled'),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
