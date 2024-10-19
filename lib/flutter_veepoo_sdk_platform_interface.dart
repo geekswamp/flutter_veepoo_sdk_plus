@@ -1,3 +1,4 @@
+import 'package:flutter_veepoo_sdk/models/spoh.dart';
 import 'package:flutter_veepoo_sdk/statuses/device_binding_statuses.dart';
 import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -130,6 +131,23 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
     throw UnimplementedError('readHeartWarning() has not been implemented.');
   }
 
+  /// Start detect blood oxygen.
+  Future<void> startDetectSpoh() {
+    throw UnimplementedError('startDetectSpoh() has not been implemented.');
+  }
+
+  /// Start detect blood oxygen after binding.
+  Future<void> startDetectSpohAfterBinding(String password, bool is24H) {
+    throw UnimplementedError(
+      'startDetectSpohAfterBinding() has not been implemented.',
+    );
+  }
+
+  /// Stop detect blood oxygen.
+  Future<void> stopDetectSpoh() {
+    throw UnimplementedError('stopDetectSpoh() has not been implemented.');
+  }
+
   /// Stream of Bluetooth scan results.
   Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
     throw UnimplementedError(
@@ -140,5 +158,10 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
   /// Stream of heart rate results.
   Stream<HeartRate?> get heartRate {
     throw UnimplementedError('heartRateEventChannel has not been implemented.');
+  }
+
+  /// Stream of blood oxygen results.
+  Stream<Spoh?> get spoh {
+    throw UnimplementedError('spohEventChannel has not been implemented.');
   }
 }

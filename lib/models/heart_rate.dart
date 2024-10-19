@@ -15,8 +15,8 @@ class HeartRate extends Equatable {
   final HeartStatuses? state;
 
   /// Converts a [Map<String, dynamic>] to a [HeartRate].
-  factory HeartRate.fromJson(Map<String, dynamic> map) {
-    return HeartRate(map['data'], HeartStatuses.fromString(map['state']));
+  factory HeartRate.fromJson(Map<String, dynamic> json) {
+    return HeartRate(json['data'], HeartStatuses.fromString(json['state']));
   }
 
   @override

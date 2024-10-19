@@ -6,16 +6,21 @@ import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
 import 'flutter_veepoo_sdk_platform_interface.dart';
 import 'models/bluetooth_device.dart';
 import 'models/heart_rate.dart';
+import 'models/spoh.dart';
 
 export 'exceptions/device_connection_exception.dart';
 export 'exceptions/heart_detection_exception.dart';
 export 'exceptions/permission_exception.dart';
+export 'exceptions/spoh_detection_exception.dart';
 export 'exceptions/unexpected_event_type_exception.dart';
 export 'models/bluetooth_device.dart';
 export 'models/heart_rate.dart';
+export 'models/spoh.dart';
 export 'statuses/device_binding_statuses.dart';
+export 'statuses/device_statuses.dart';
 export 'statuses/heart_statuses.dart';
 export 'statuses/permission_statuses.dart';
+export 'statuses/spoh_statuses.dart';
 
 /// {@template flutter_veepoo_sdk}
 /// A Flutter plugin for Veepoo SDK.
@@ -120,6 +125,23 @@ class FlutterVeepooSdk {
     return _platform.readHeartWarning();
   }
 
+  /// Start detect SPOH (blood oxygen).
+  /// This function is used to start detecting SPOH (blood oxygen). The device will return the SPOH data to the app.
+  /// Please use [bindDevice] before calling this function or you can use [startDetectSpohAfterBinding] to bind and start detect SPOH.
+  Future<void> startDetectSpoh() {
+    return _platform.startDetectSpoh();
+  }
+
+  /// Start detect SPOH (blood oxygen) after binding.
+  Future<void> startDetectSpohAfterBinding(String password, bool is24H) {
+    return _platform.startDetectSpohAfterBinding(password, is24H);
+  }
+
+  /// Stop detect SPOH (blood oxygen).
+  Future<void> stopDetectSpoh() {
+    return _platform.stopDetectSpoh();
+  }
+
   /// Stream of Bluetooth scan results.
   Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
     return _platform.scanBluetoothDevices;
@@ -128,5 +150,10 @@ class FlutterVeepooSdk {
   /// Stream of heart rate results.
   Stream<HeartRate?> get heartRate {
     return _platform.heartRate;
+  }
+
+  /// Stream of SPOH (blood oxygen) results.
+  Stream<Spoh?> get spoh {
+    return _platform.spoh;
   }
 }

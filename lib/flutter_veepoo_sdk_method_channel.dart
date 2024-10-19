@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_veepoo_sdk/exceptions/device_connection_exception.dart';
 import 'package:flutter_veepoo_sdk/exceptions/heart_detection_exception.dart';
 import 'package:flutter_veepoo_sdk/exceptions/permission_exception.dart';
+import 'package:flutter_veepoo_sdk/exceptions/spoh_detection_exception.dart';
 import 'package:flutter_veepoo_sdk/exceptions/unexpected_event_type_exception.dart';
 import 'package:flutter_veepoo_sdk/statuses/device_binding_statuses.dart';
 import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
 import 'flutter_veepoo_sdk_platform_interface.dart';
 import 'models/bluetooth_device.dart';
 import 'models/heart_rate.dart';
+import 'models/spoh.dart';
 
 /// {@template method_channel_flutter_veepoo_sdk}
 /// An implementation of [FlutterVeepooSdkPlatform] that uses method channels.
@@ -22,6 +24,7 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       const EventChannel('$_channelName/scan_bluetooth_event_channel');
   final EventChannel heartRateEventChannel =
       const EventChannel('$_channelName/detect_heart_event_channel');
+  final EventChannel spohEventChannel = const EventChannel('$_channelName/detect_spoh_event_channel');
 
   /// Requests Bluetooth permissions.
   ///
@@ -185,10 +188,9 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   }
 
   /// Starts heart rate detection.
+  /// You can alternatively use [startDetectHeartAfterBinding] to bind and start detection.
   ///
   /// Throws a [HeartDetectionException] if the detection fails or if no device is connected.
-  ///
-  /// You can alternatively use [startDetectHeartAfterBinding] to bind and start detection.
   @override
   Future<void> startDetectHeart() async {
     try {
@@ -248,6 +250,46 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
     await methodChannel.invokeMethod<void>('readHeartWarning');
   }
 
+  /// Start detect blood oxygen.
+  /// You can alternatively use [startDetectSpohAfterBinding] to bind and start detection.
+  ///
+  /// Throws a [SpohDetectionException] if the detection fails.
+  @override
+  Future<void> startDetectSpoh() async {
+    try {
+      await methodChannel.invokeMethod<void>('startDetectSpoh');
+    } on PlatformException catch (e) {
+      throw SpohDetectionException('Failed to start detect blood oxygen: $e');
+    }
+  }
+
+  /// Start detect blood oxygen after binding
+  @override
+  Future<void> startDetectSpohAfterBinding(String password, bool is24H) async {
+    try {
+      final DeviceBindingStatus? status = await bindDevice(password, is24H);
+      if (status == DeviceBindingStatus.checkAndTimeSuccess) {
+        await startDetectSpoh();
+      }
+    } on PlatformException catch (e) {
+      throw SpohDetectionException('Failed to start detect blood oxygen: $e');
+    }
+  }
+
+  /// Stop detect blood oxygen
+  @override
+  Future<void> stopDetectSpoh() async {
+    try {
+      if (await isDeviceConnected() == true) {
+        await methodChannel.invokeMethod<void>('stopDetectSpoh');
+      } else {
+        throw DeviceConnectionException('Device is not connected');
+      }
+    } on PlatformException catch (e) {
+      throw SpohDetectionException('Failed to stop detect blood oxygen: $e');
+    }
+  }
+
   /// Stream of Bluetooth scan results.
   ///
   /// Returns a [Stream] of [List] of [BluetoothDevice] objects.
@@ -279,8 +321,26 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
             event.map((key, value) => MapEntry(key.toString(), value));
 
         return HeartRate.fromJson(result);
+      } else {
+        throw UnexpectedEventTypeException('${event.runtimeType}');
       }
-      return null;
+    });
+  }
+
+  /// Stream of blood oxygen results.
+  ///
+  /// Returns a [Stream] of [Spoh] objects.
+  @override
+  Stream<Spoh?> get spoh {
+    return spohEventChannel.receiveBroadcastStream().map((dynamic event) {
+      if (event is Map<Object?, Object?>) {
+        final result =
+            event.map((key, value) => MapEntry(key.toString(), value));
+
+        return Spoh.fromJson(result);
+      } else {
+        throw UnexpectedEventTypeException('${event.runtimeType}');
+      }
     });
   }
 }

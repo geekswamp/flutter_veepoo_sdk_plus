@@ -70,6 +70,22 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void _startDetectSpoh() async {
+    try {
+      await _flutterVeepooSdkPlugin.startDetectSpohAfterBinding('0000', true);
+    } catch (e) {
+      debugPrint('Failed to start detect spoh: $e');
+    }
+  }
+
+  void _stopDetectSpoh() async {
+    try {
+      await _flutterVeepooSdkPlugin.stopDetectSpoh();
+    } catch (e) {
+      debugPrint('Failed to stop detect spoh: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -96,40 +112,63 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _requestPermissions,
-                child: const Text('Request Permissions'),
+              StreamBuilder(
+                stream: _flutterVeepooSdkPlugin.spoh,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(
+                      'SPOH: ${snapshot.data?.value ?? 0}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    );
+                  } else {
+                    return const Text(
+                      'Spoh no data',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    );
+                  }
+                },
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _openBluetooth,
-                child: const Text('Open Bluetooth'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _closeBluetooth,
-                child: const Text('Close Bluetooth'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _scanDevices,
-                child: const Text('Scan Bluetooth Devices'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _disconnectDevice,
-                child: const Text('Disconnect Device'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _starDetectHeart,
-                child: const Text('Start Detect Heart'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _stopDetectHeart,
-                child: const Text('Stop Detect Heart'),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  ElevatedButton(
+                    onPressed: _requestPermissions,
+                    child: const Text('Request Permissions'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _openBluetooth,
+                    child: const Text('Open Bluetooth'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _closeBluetooth,
+                    child: const Text('Close Bluetooth'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _scanDevices,
+                    child: const Text('Scan Bluetooth Devices'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _disconnectDevice,
+                    child: const Text('Disconnect Device'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _starDetectHeart,
+                    child: const Text('Start Detect Heart'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _stopDetectHeart,
+                    child: const Text('Stop Detect Heart'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _startDetectSpoh,
+                    child: const Text('Start Detect SPOH'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _stopDetectSpoh,
+                    child: const Text('Stop Detect SPOH'),
+                  ),
+                ],
               ),
               const Text(
                 'Bluetooth Devices:',

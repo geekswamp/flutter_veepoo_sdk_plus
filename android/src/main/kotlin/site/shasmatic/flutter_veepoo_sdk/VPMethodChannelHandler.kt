@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import site.shasmatic.flutter_veepoo_sdk.utils.DeviceStorage
 import site.shasmatic.flutter_veepoo_sdk.utils.HeartRate
+import site.shasmatic.flutter_veepoo_sdk.utils.Spoh
 import site.shasmatic.flutter_veepoo_sdk.utils.VPBluetoothManager
 
 /**
@@ -62,6 +63,8 @@ class VPMethodChannelHandler(
             "stopDetectHeart" -> handleStopDetectHeart()
             "settingHeartWarning" -> handleSettingHeartWarning(high, low, open)
             "readHeartWarning" -> handleReadHeartWarning()
+            "startDetectSpoh" -> handleStartDetectSpoh()
+            "stopDetectSpoh" -> handleStopDetectSpoh()
             else -> result.notImplemented()
         }
     }
@@ -159,6 +162,14 @@ class VPMethodChannelHandler(
         getHeartRateManager().readHeartWarning()
     }
 
+    private fun handleStartDetectSpoh() {
+        getSPOHManager().startDetectSpoh()
+    }
+
+    private fun handleStopDetectSpoh() {
+        getSPOHManager().stopDetectSpoh()
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String?>, grantResults: IntArray): Boolean {
         getBluetoothManager(result!!).onRequestPermissionsResult(requestCode, grantResults)
@@ -187,5 +198,9 @@ class VPMethodChannelHandler(
 
     private fun getHeartRateManager(): HeartRate {
         return HeartRate(detectHeartEventSink, vpManager)
+    }
+
+    private fun getSPOHManager(): Spoh {
+        return Spoh(detectSpohEventSink, vpSpGetUtil, vpManager)
     }
 }

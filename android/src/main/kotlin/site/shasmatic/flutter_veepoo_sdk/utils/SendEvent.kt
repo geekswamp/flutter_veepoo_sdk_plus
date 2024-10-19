@@ -49,7 +49,7 @@ class SendEvent(private val eventSink: EventChannel.EventSink?) {
      *
      * @param spO2Data A map containing the SpO2 data.
      */
-    fun sendSpO2Event(spO2Data: Any) {
+    fun sendSpO2Event(spO2Data: Map<String, Any?>) {
         sendEvent(spO2Data)
     }
 
