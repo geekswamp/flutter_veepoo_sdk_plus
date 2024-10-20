@@ -1,26 +1,32 @@
 library flutter_veepoo_sdk;
 
-import 'package:flutter_veepoo_sdk/statuses/device_binding_statuses.dart';
-import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
+import 'package:flutter_veepoo_sdk/enums/device_binding_statuses.dart';
+import 'package:flutter_veepoo_sdk/enums/permission_statuses.dart';
 
 import 'flutter_veepoo_sdk_platform_interface.dart';
+import 'models/battery.dart';
 import 'models/bluetooth_device.dart';
 import 'models/heart_rate.dart';
 import 'models/spoh.dart';
 
+export 'exceptions/battery_exception.dart';
 export 'exceptions/device_connection_exception.dart';
 export 'exceptions/heart_detection_exception.dart';
 export 'exceptions/permission_exception.dart';
 export 'exceptions/spoh_detection_exception.dart';
 export 'exceptions/unexpected_event_type_exception.dart';
+export 'models/battery.dart';
 export 'models/bluetooth_device.dart';
 export 'models/heart_rate.dart';
 export 'models/spoh.dart';
-export 'statuses/device_binding_statuses.dart';
-export 'statuses/device_statuses.dart';
-export 'statuses/heart_statuses.dart';
-export 'statuses/permission_statuses.dart';
-export 'statuses/spoh_statuses.dart';
+export 'enums/battery_levels.dart';
+export 'enums/battery_states.dart';
+export 'enums/device_binding_statuses.dart';
+export 'enums/device_statuses.dart';
+export 'enums/heart_statuses.dart';
+export 'enums/permission_statuses.dart';
+export 'enums/power_statuses.dart';
+export 'enums/spoh_statuses.dart';
 
 /// {@template flutter_veepoo_sdk}
 /// A Flutter plugin for Veepoo SDK.
@@ -140,6 +146,11 @@ class FlutterVeepooSdk {
   /// Stop detect SPOH (blood oxygen).
   Future<void> stopDetectSpoh() {
     return _platform.stopDetectSpoh();
+  }
+
+  /// Read battery level.
+  Future<Battery?> readBattery() {
+    return _platform.readBattery();
   }
 
   /// Stream of Bluetooth scan results.

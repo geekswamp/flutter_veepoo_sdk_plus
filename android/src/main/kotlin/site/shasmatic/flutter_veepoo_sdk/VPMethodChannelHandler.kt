@@ -9,6 +9,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
+import site.shasmatic.flutter_veepoo_sdk.utils.Battery
 import site.shasmatic.flutter_veepoo_sdk.utils.DeviceStorage
 import site.shasmatic.flutter_veepoo_sdk.utils.HeartRate
 import site.shasmatic.flutter_veepoo_sdk.utils.Spoh
@@ -29,11 +30,11 @@ class VPMethodChannelHandler(
     private val deviceStorage: DeviceStorage,
 ): MethodChannel.MethodCallHandler, PluginRegistry.RequestPermissionsResultListener {
 
-    private var result: MethodChannel.Result? = null
     private var activity: Activity? = null
     private var scanBluetoothEventSink: EventChannel.EventSink? = null
     private var detectHeartEventSink: EventChannel.EventSink? = null
     private var detectSpohEventSink: EventChannel.EventSink? = null
+    private lateinit var result: MethodChannel.Result
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -65,81 +66,88 @@ class VPMethodChannelHandler(
             "readHeartWarning" -> handleReadHeartWarning()
             "startDetectSpoh" -> handleStartDetectSpoh()
             "stopDetectSpoh" -> handleStopDetectSpoh()
+            "readBattery" -> handleReadBattery()
             else -> result.notImplemented()
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String?>, grantResults: IntArray): Boolean {
+        getBluetoothManager(result).onRequestPermissionsResult(requestCode, grantResults)
+        return true
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun handleRequestBluetoothPermissions() {
-        getBluetoothManager(result!!).requestBluetoothPermissions()
+        getBluetoothManager(result).requestBluetoothPermissions()
     }
 
     private fun handleOpenAppSettings() {
-        getBluetoothManager(result!!).openAppSettings()
+        getBluetoothManager(result).openAppSettings()
     }
 
     private fun handleIsBluetoothEnabled() {
-        getBluetoothManager(result!!).isBluetoothEnabled()
+        getBluetoothManager(result).isBluetoothEnabled()
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleOpenBluetooth() {
-        getBluetoothManager(result!!).openBluetooth()
+        getBluetoothManager(result).openBluetooth()
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleCloseBluetooth() {
-        getBluetoothManager(result!!).closeBluetooth()
+        getBluetoothManager(result).closeBluetooth()
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleScanDevices() {
-        getBluetoothManager(result!!).scanDevices()
+        getBluetoothManager(result).scanDevices()
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleStopScanDevices() {
-        getBluetoothManager(result!!).stopScanDevices()
+        getBluetoothManager(result).stopScanDevices()
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleConnectDevice(address: String?) {
         if (address != null) {
-            getBluetoothManager(result!!).connectDevice(address)
+            getBluetoothManager(result).connectDevice(address)
         } else {
-            result?.error("INVALID_ARGUMENT", "MAC address is required", null)
+            result.error("INVALID_ARGUMENT", "MAC address is required", null)
         }
     }
 
     private fun handleBindDevice(password: String?, is24H: Boolean?) {
         if (password != null && is24H != null) {
-            getBluetoothManager(result!!).bindDevice(password, is24H) { status ->
+            getBluetoothManager(result).bindDevice(password, is24H) { status ->
                 if (status != null) {
-                    result?.success(status.name)
+                    result.success(status.name)
                 } else {
-                    result?.error("UNKNOWN_STATUS", "Binding status is null", null)
+                    result.error("UNKNOWN_STATUS", "Binding status is null", null)
                 }
             }
         } else {
-            result?.error("INVALID_ARGUMENT", "Password and 24-hour mode are required", null)
+            result.error("INVALID_ARGUMENT", "Password and 24-hour mode are required", null)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleDisconnectDevice() {
-        getBluetoothManager(result!!).disconnectDevice()
+        getBluetoothManager(result).disconnectDevice()
     }
 
     private fun handleGetAddress() {
-        getBluetoothManager(result!!).getAddress()
+        getBluetoothManager(result).getAddress()
     }
 
     private fun handleGetCurrentStatus() {
-        getBluetoothManager(result!!).getCurrentStatus()
+        getBluetoothManager(result).getCurrentStatus()
     }
 
     private fun handleIsDeviceConnected() {
-        getBluetoothManager(result!!).isDeviceConnected()
+        getBluetoothManager(result).isDeviceConnected()
     }
 
     private fun handleStartDetectHeart() {
@@ -154,7 +162,7 @@ class VPMethodChannelHandler(
         if (high != null && low != null && open != null) {
             getHeartRateManager().settingHeartWarning(high, low, open)
         } else {
-            result?.error("INVALID_ARGUMENT", "High, low, and open values are required", null)
+            result.error("INVALID_ARGUMENT", "High, low, and open values are required", null)
         }
     }
 
@@ -170,10 +178,8 @@ class VPMethodChannelHandler(
         getSPOHManager().stopDetectSpoh()
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String?>, grantResults: IntArray): Boolean {
-        getBluetoothManager(result!!).onRequestPermissionsResult(requestCode, grantResults)
-        return true
+    private fun handleReadBattery() {
+        getBatteryManager(result).readBattery()
     }
 
     fun setActivity(activity: Activity?) {
@@ -202,5 +208,9 @@ class VPMethodChannelHandler(
 
     private fun getSPOHManager(): Spoh {
         return Spoh(detectSpohEventSink, vpSpGetUtil, vpManager)
+    }
+
+    private fun getBatteryManager(result: MethodChannel.Result): Battery {
+        return Battery(result, vpManager)
     }
 }

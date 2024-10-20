@@ -1,13 +1,15 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_veepoo_sdk/exceptions/battery_exception.dart';
 import 'package:flutter_veepoo_sdk/exceptions/device_connection_exception.dart';
 import 'package:flutter_veepoo_sdk/exceptions/heart_detection_exception.dart';
 import 'package:flutter_veepoo_sdk/exceptions/permission_exception.dart';
 import 'package:flutter_veepoo_sdk/exceptions/spoh_detection_exception.dart';
 import 'package:flutter_veepoo_sdk/exceptions/unexpected_event_type_exception.dart';
-import 'package:flutter_veepoo_sdk/statuses/device_binding_statuses.dart';
-import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
+import 'package:flutter_veepoo_sdk/enums/device_binding_statuses.dart';
+import 'package:flutter_veepoo_sdk/enums/permission_statuses.dart';
 
 import 'flutter_veepoo_sdk_platform_interface.dart';
+import 'models/battery.dart';
 import 'models/bluetooth_device.dart';
 import 'models/heart_rate.dart';
 import 'models/spoh.dart';
@@ -288,6 +290,21 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       }
     } on PlatformException catch (e) {
       throw SpohDetectionException('Failed to stop detect blood oxygen: $e');
+    }
+  }
+
+  /// Read battery level.
+  @override
+  Future<Battery?> readBattery() async {
+    try {
+      if (await isDeviceConnected() == true) {
+        final result = await methodChannel.invokeMapMethod<String, dynamic>('readBattery');
+        return result != null ? Battery.fromJson(result) : null;
+      } else {
+        throw DeviceConnectionException('Device is not connected');
+      }
+    } on PlatformException catch (e) {
+      throw BatteryException('Failed to read battery: $e');
     }
   }
 

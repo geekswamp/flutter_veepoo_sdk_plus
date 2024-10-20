@@ -86,6 +86,14 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void _readBattery() async {
+    try {
+      await _flutterVeepooSdkPlugin.readBattery();
+    } catch (e) {
+      debugPrint('Failed to read battery: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -112,6 +120,7 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
+              const SizedBox(height: 6),
               StreamBuilder(
                 stream: _flutterVeepooSdkPlugin.spoh,
                 builder: (context, snapshot) {
@@ -128,6 +137,7 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
+              const SizedBox(height: 6),
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
@@ -167,6 +177,10 @@ class _MyAppState extends State<MyApp> {
                   ElevatedButton(
                     onPressed: _stopDetectSpoh,
                     child: const Text('Stop Detect SPOH'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _readBattery,
+                    child: const Text('Read Battery Level'),
                   ),
                 ],
               ),

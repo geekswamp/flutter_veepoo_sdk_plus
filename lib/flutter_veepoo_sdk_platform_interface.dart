@@ -1,9 +1,10 @@
 import 'package:flutter_veepoo_sdk/models/spoh.dart';
-import 'package:flutter_veepoo_sdk/statuses/device_binding_statuses.dart';
-import 'package:flutter_veepoo_sdk/statuses/permission_statuses.dart';
+import 'package:flutter_veepoo_sdk/enums/device_binding_statuses.dart';
+import 'package:flutter_veepoo_sdk/enums/permission_statuses.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'flutter_veepoo_sdk_method_channel.dart';
+import 'models/battery.dart';
 import 'models/bluetooth_device.dart';
 import 'models/heart_rate.dart';
 
@@ -146,6 +147,11 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
   /// Stop detect blood oxygen.
   Future<void> stopDetectSpoh() {
     throw UnimplementedError('stopDetectSpoh() has not been implemented.');
+  }
+
+  /// Read battery level.
+  Future<Battery?> readBattery() {
+    throw UnimplementedError('readBattery() has not been implemented.');
   }
 
   /// Stream of Bluetooth scan results.
