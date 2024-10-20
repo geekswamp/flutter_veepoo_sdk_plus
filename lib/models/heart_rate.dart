@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_veepoo_sdk/statuses/heart_statuses.dart';
+import 'package:flutter_veepoo_sdk/enums/heart_statuses.dart';
 
 /// {@template heart_rate}
 /// A class that represents the result of a heart rate detection.
