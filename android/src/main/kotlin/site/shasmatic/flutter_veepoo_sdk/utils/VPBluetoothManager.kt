@@ -9,27 +9,23 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.inuker.bluetooth.library.Constants
-import com.inuker.bluetooth.library.model.BleGattProfile
 import com.inuker.bluetooth.library.search.SearchResult
 import com.inuker.bluetooth.library.search.response.SearchResponse
 import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.listener.base.IABleConnectStatusListener
-import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.base.IConnectResponse
 import com.veepoo.protocol.listener.base.INotifyResponse
 import com.veepoo.protocol.listener.data.ICustomSettingDataListener
 import com.veepoo.protocol.listener.data.IDeviceFuctionDataListener
 import com.veepoo.protocol.listener.data.IPwdDataListener
 import com.veepoo.protocol.listener.data.ISocialMsgDataListener
-import com.veepoo.protocol.model.datas.FunctionDeviceSupportData
 import com.veepoo.protocol.model.datas.FunctionSocailMsgData
-import com.veepoo.protocol.model.datas.PwdData
 import com.veepoo.protocol.model.enums.EPwdStatus
-import com.veepoo.protocol.model.settings.CustomSettingData
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import site.shasmatic.flutter_veepoo_sdk.statuses.DeviceBindingStatuses
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
+import site.shasmatic.flutter_veepoo_sdk.VPWriteResponse
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import site.shasmatic.flutter_veepoo_sdk.statuses.PermissionStatuses
 
@@ -57,6 +53,7 @@ class VPBluetoothManager(
     private val discoveredDevices = mutableListOf<String>()
     private val sendEvent = SendEvent(bluetoothEventSink)
     private val currentGatt = vpManager.currentConnectGatt
+    private val writeResponse: VPWriteResponse = VPWriteResponse()
 
     companion object {
         const val REQUEST_PERMISSIONS_CODE = 1001
@@ -228,7 +225,7 @@ class VPBluetoothManager(
      */
     fun bindDevice(password: String, is24H: Boolean, onStatus: (DeviceBindingStatuses?) -> Unit) {
         vpManager.confirmDevicePwd(
-            writeResponseCallBack,
+            writeResponse,
             passwordDataListener(password, is24H, onStatus),
             deviceFuncDataListener,
             socialMessageDataListener,
@@ -283,7 +280,7 @@ class VPBluetoothManager(
     @RequiresApi(Build.VERSION_CODES.S)
     fun disconnectDevice() {
         executeBluetoothActionWithPermission {
-            vpManager.disconnectWatch(writeResponseCallBack)
+            vpManager.disconnectWatch(writeResponse)
             vpManager.unregisterConnectStatusListener(currentGatt.device.address, bleConnectStatusListener)
         }
     }
@@ -316,8 +313,8 @@ class VPBluetoothManager(
         }
     }
 
-    private val connectResponseCallBack = object : IConnectResponse {
-        override fun connectState(state: Int, gatt: BleGattProfile?, success: Boolean) {
+    private val connectResponseCallBack =
+        IConnectResponse { state, _, success ->
             if (!isSubmitted) {
                 isSubmitted = true
                 if (success) {
@@ -328,28 +325,21 @@ class VPBluetoothManager(
                 }
             }
         }
-    }
 
-    private val notifyResponseCallBack = object : INotifyResponse {
-        override fun notifyState(state: Int) {
-            if (!isSubmitted) {
-                isSubmitted = true
-                if (state == Constants.REQUEST_SUCCESS) {
-                    result.success("Notification enabled")
-                } else {
-                    VPLogger.e("Failed to enable notification: $state")
-                    result.error("NOTIFY_FAILED", "Failed to enable notification", state)
-                }
+    private val notifyResponseCallBack = INotifyResponse { state ->
+        if (!isSubmitted) {
+            isSubmitted = true
+            if (state == Constants.REQUEST_SUCCESS) {
+                result.success("Notification enabled")
+            } else {
+                VPLogger.e("Failed to enable notification: $state")
+                result.error("NOTIFY_FAILED", "Failed to enable notification", state)
             }
         }
     }
 
-    private val writeResponseCallBack = object : IBleWriteResponse {
-        override fun onResponse(status: Int) = VPLogger.i("Write response: $status")
-    }
-
-    private fun passwordDataListener(password: String, is24H: Boolean, onStatus: (DeviceBindingStatuses?) -> Unit) = object : IPwdDataListener {
-        override fun onPwdDataChange(data: PwdData?) {
+    private fun passwordDataListener(password: String, is24H: Boolean, onStatus: (DeviceBindingStatuses?) -> Unit) =
+        IPwdDataListener { data ->
             val status = when (data?.getmStatus()) {
                 EPwdStatus.CHECK_FAIL -> DeviceBindingStatuses.CHECK_FAIL
                 EPwdStatus.UNKNOW -> DeviceBindingStatuses.UNKNOWN
@@ -362,22 +352,18 @@ class VPBluetoothManager(
                     deviceStorage.saveCredentials(password, is24H)
                     DeviceBindingStatuses.CHECK_AND_TIME_SUCCESS
                 }
+
                 null -> null
             }
             onStatus(status)
         }
-    }
 
-    private val deviceFuncDataListener = object : IDeviceFuctionDataListener {
-        override fun onFunctionSupportDataChange(data: FunctionDeviceSupportData?) = VPLogger.i("Device function data: $data")
-    }
+    private val deviceFuncDataListener = IDeviceFuctionDataListener { data -> VPLogger.i("Device function data: $data") }
 
     private val socialMessageDataListener = object : ISocialMsgDataListener {
         override fun onSocialMsgSupportDataChange(data: FunctionSocailMsgData?) = VPLogger.i("Social message data change 1: $data")
         override fun onSocialMsgSupportDataChange2(data: FunctionSocailMsgData?) = VPLogger.i("Social message data change 2: $data")
     }
 
-    private val customSettingDataListener = object : ICustomSettingDataListener {
-        override fun OnSettingDataChange(data: CustomSettingData?) = VPLogger.i("Custom setting data: $data")
-    }
+    private val customSettingDataListener = ICustomSettingDataListener { data -> VPLogger.i("Custom setting data: $data") }
 }

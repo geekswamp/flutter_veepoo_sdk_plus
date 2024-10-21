@@ -4,7 +4,6 @@ import com.inuker.bluetooth.library.Code
 import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.IBatteryDataListener
-import com.veepoo.protocol.model.datas.BatteryData
 import io.flutter.plugin.common.MethodChannel
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
@@ -35,26 +34,22 @@ class Battery(
         }
     }
 
-    private val writeResponseCallBack = object : IBleWriteResponse {
-        override fun onResponse(status: Int) {
-            if (status != Code.REQUEST_SUCCESS) {
-                VPLogger.e("Failed to read battery level: $status")
-            }
+    private val writeResponseCallBack = IBleWriteResponse { status ->
+        if (status != Code.REQUEST_SUCCESS) {
+            VPLogger.e("Failed to read battery level: $status")
         }
     }
 
-    private val batteryDataListener = object : IBatteryDataListener {
-        override fun onDataChange(data: BatteryData?) {
-            val batteryResult = mapOf<String, Any?>(
-                "level" to data?.batteryLevel,
-                "percent" to data?.batteryPercent,
-                "powerModel" to data?.powerModel,
-                "state" to data?.state,
-                "bat" to data?.bat,
-                "isLow" to data?.isLowBattery,
-                "isPercent" to data?.isPercent,
-            )
-            result.success(batteryResult)
-        }
+    private val batteryDataListener = IBatteryDataListener { data ->
+        val batteryResult = mapOf<String, Any?>(
+            "level" to data?.batteryLevel,
+            "percent" to data?.batteryPercent,
+            "powerModel" to data?.powerModel,
+            "state" to data?.state,
+            "bat" to data?.bat,
+            "isLow" to data?.isLowBattery,
+            "isPercent" to data?.isPercent,
+        )
+        result.success(batteryResult)
     }
 }

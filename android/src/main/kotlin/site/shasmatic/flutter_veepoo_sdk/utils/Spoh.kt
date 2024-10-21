@@ -1,12 +1,10 @@
 package site.shasmatic.flutter_veepoo_sdk.utils
 
 import com.veepoo.protocol.VPOperateManager
-import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.ISpo2hDataListener
-import com.veepoo.protocol.model.datas.Spo2hData
 import com.veepoo.protocol.shareprence.VpSpGetUtil
 import io.flutter.plugin.common.EventChannel
-import site.shasmatic.flutter_veepoo_sdk.VPLogger
+import site.shasmatic.flutter_veepoo_sdk.VPWriteResponse
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import java.lang.reflect.InvocationTargetException
 
@@ -25,13 +23,14 @@ class Spoh(
 ) {
 
     private val sendEvent: SendEvent = SendEvent(spohEventSink)
+    private val writeResponse: VPWriteResponse = VPWriteResponse()
 
     /**
      * Starts the SpO2 detection process.
      */
     fun startDetectSpoh() {
         executeSpohOperation {
-            vpManager.startDetectSPO2H(writeResponseCallBack, spohDataListener)
+            vpManager.startDetectSPO2H(writeResponse, spohDataListener)
         }
     }
 
@@ -40,7 +39,7 @@ class Spoh(
      */
     fun stopDetectSpoh() {
         executeSpohOperation {
-            vpManager.stopDetectSPO2H(writeResponseCallBack, spohDataListener)
+            vpManager.stopDetectSPO2H(writeResponse, spohDataListener)
         }
     }
 
@@ -58,24 +57,15 @@ class Spoh(
         }
     }
 
-    private val writeResponseCallBack = object : IBleWriteResponse {
-        override fun onResponse(status: Int) {
-            VPLogger.d("Write response: $status")
-        }
-
-    }
-
-    private val spohDataListener = object : ISpo2hDataListener {
-        override fun onSpO2HADataChange(data: Spo2hData?) {
-            val spohResult = mapOf<String, Any?>(
-                "spohStatus" to data?.spState?.name,
-                "deviceStatus" to data?.deviceState?.name,
-                "value" to data?.value,
-                "checking" to data?.isChecking,
-                "checkingProgress" to data?.checkingProgress,
-                "rate" to data?.rateValue,
-            )
-            sendEvent.sendSpO2Event(spohResult)
-        }
+    private val spohDataListener = ISpo2hDataListener { data ->
+        val spohResult = mapOf<String, Any?>(
+            "spohStatus" to data?.spState?.name,
+            "deviceStatus" to data?.deviceState?.name,
+            "value" to data?.value,
+            "checking" to data?.isChecking,
+            "checkingProgress" to data?.checkingProgress,
+            "rate" to data?.rateValue,
+        )
+        sendEvent.sendSpO2Event(spohResult)
     }
 }

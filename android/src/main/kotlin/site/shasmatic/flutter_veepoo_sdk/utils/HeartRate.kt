@@ -1,14 +1,12 @@
 package site.shasmatic.flutter_veepoo_sdk.utils
 
 import com.veepoo.protocol.VPOperateManager
-import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.IHeartDataListener
 import com.veepoo.protocol.listener.data.IHeartWaringDataListener
-import com.veepoo.protocol.model.datas.HeartData
-import com.veepoo.protocol.model.datas.HeartWaringData
 import com.veepoo.protocol.model.settings.HeartWaringSetting
 import io.flutter.plugin.common.EventChannel
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
+import site.shasmatic.flutter_veepoo_sdk.VPWriteResponse
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import java.lang.reflect.InvocationTargetException
 
@@ -25,13 +23,14 @@ class HeartRate(
 ) {
 
     private val sendEvent: SendEvent = SendEvent(heartRateEventSink)
+    private val writeResponse: VPWriteResponse = VPWriteResponse()
 
     /**
      * Starts the heart rate detection process.
      */
     fun startDetectHeart() {
         executeHeartRateOperation {
-            vpManager.startDetectHeart(writeResponseCallBack, heartDataListener)
+            vpManager.startDetectHeart(writeResponse, heartDataListener)
         }
     }
 
@@ -40,7 +39,7 @@ class HeartRate(
      */
     fun stopDetectHeart() {
         executeHeartRateOperation {
-            vpManager.stopDetectHeart(writeResponseCallBack)
+            vpManager.stopDetectHeart(writeResponse)
         }
     }
 
@@ -52,7 +51,7 @@ class HeartRate(
      */
     fun settingHeartWarning(high: Int, low: Int, open: Boolean) {
         executeHeartRateOperation {
-            vpManager.settingHeartWarning(writeResponseCallBack, heartWarningDataCallBack, heartWarningSetting(high, low, open))
+            vpManager.settingHeartWarning(writeResponse, heartWarningDataCallBack, heartWarningSetting(high, low, open))
         }
     }
 
@@ -61,7 +60,7 @@ class HeartRate(
      */
     fun readHeartWarning() {
         executeHeartRateOperation {
-            vpManager.readHeartWarning(writeResponseCallBack, heartWarningDataCallBack)
+            vpManager.readHeartWarning(writeResponse, heartWarningDataCallBack)
         }
     }
 
@@ -75,27 +74,17 @@ class HeartRate(
         }
     }
 
-    private val writeResponseCallBack = object : IBleWriteResponse {
-        override fun onResponse(status: Int) {
-            VPLogger.d("Write response: $status")
-        }
+//    private val writeResponseCallBack = IBleWriteResponse { status -> VPLogger.d("Write response: $status") }
+
+    private val heartDataListener = IHeartDataListener { data ->
+        val heartResult = mapOf<String, Any?>(
+            "data" to data?.data,
+            "state" to data?.heartStatus?.name
+        )
+        sendEvent.sendHeartRateEvent(heartResult)
     }
 
-    private val heartDataListener = object : IHeartDataListener {
-        override fun onDataChange(data: HeartData?) {
-            val heartResult = mapOf<String, Any?>(
-                "data" to data?.data,
-                "state" to data?.heartStatus?.name
-            )
-            sendEvent.sendHeartRateEvent(heartResult)
-        }
-    }
-
-    private val heartWarningDataCallBack = object : IHeartWaringDataListener {
-        override fun onHeartWaringDataChange(data: HeartWaringData?) {
-            VPLogger.d("Heart warning data: $data")
-        }
-    }
+    private val heartWarningDataCallBack = IHeartWaringDataListener { data -> VPLogger.d("Heart warning data: $data") }
 
     private fun heartWarningSetting(high: Int, low: Int, open: Boolean): HeartWaringSetting {
         return HeartWaringSetting(high, low, open)
