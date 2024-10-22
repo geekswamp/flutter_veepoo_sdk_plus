@@ -23,7 +23,6 @@ import com.veepoo.protocol.model.datas.FunctionSocailMsgData
 import com.veepoo.protocol.model.enums.EPwdStatus
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import site.shasmatic.flutter_veepoo_sdk.statuses.DeviceBindingStatuses
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
 import site.shasmatic.flutter_veepoo_sdk.VPWriteResponse
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
@@ -221,12 +220,11 @@ class VPBluetoothManager(
      *
      * @param password The password to bind the device with.
      * @param is24H `true` if the device should use 24-hour time format, `false` otherwise.
-     * @param onStatus The callback to be invoked when the binding status changes.
      */
-    fun bindDevice(password: String, is24H: Boolean, onStatus: (DeviceBindingStatuses?) -> Unit) {
+    fun bindDevice(password: String, is24H: Boolean) {
         vpManager.confirmDevicePwd(
             writeResponse,
-            passwordDataListener(password, is24H, onStatus),
+            passwordDataListener(password, is24H),
             deviceFuncDataListener,
             socialMessageDataListener,
             customSettingDataListener,
@@ -338,24 +336,17 @@ class VPBluetoothManager(
         }
     }
 
-    private fun passwordDataListener(password: String, is24H: Boolean, onStatus: (DeviceBindingStatuses?) -> Unit) =
+    private fun passwordDataListener(password: String, is24H: Boolean) =
         IPwdDataListener { data ->
-            val status = when (data?.getmStatus()) {
-                EPwdStatus.CHECK_FAIL -> DeviceBindingStatuses.CHECK_FAIL
-                EPwdStatus.UNKNOW -> DeviceBindingStatuses.UNKNOWN
-                EPwdStatus.CHECK_SUCCESS -> DeviceBindingStatuses.CHECK_SUCCESS
-                EPwdStatus.SETTING_FAIL -> DeviceBindingStatuses.SETTING_FAIL
-                EPwdStatus.SETTING_SUCCESS -> DeviceBindingStatuses.SETTING_SUCCESS
-                EPwdStatus.READ_FAIL -> DeviceBindingStatuses.READ_FAIL
-                EPwdStatus.READ_SUCCESS -> DeviceBindingStatuses.READ_SUCCESS
-                EPwdStatus.CHECK_AND_TIME_SUCCESS -> {
+            if (!isSubmitted) {
+                isSubmitted = true
+                if (data.getmStatus() == EPwdStatus.CHECK_AND_TIME_SUCCESS) {
                     deviceStorage.saveCredentials(password, is24H)
-                    DeviceBindingStatuses.CHECK_AND_TIME_SUCCESS
                 }
-
-                null -> null
+                result.success(data.getmStatus().name)
+            } else {
+                VPLogger.w("Reply already submitted for passwordDataListener")
             }
-            onStatus(status)
         }
 
     private val deviceFuncDataListener = IDeviceFuctionDataListener { data -> VPLogger.i("Device function data: $data") }

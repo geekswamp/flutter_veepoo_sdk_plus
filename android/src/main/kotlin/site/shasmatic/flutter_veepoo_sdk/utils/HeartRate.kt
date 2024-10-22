@@ -74,8 +74,6 @@ class HeartRate(
         }
     }
 
-//    private val writeResponseCallBack = IBleWriteResponse { status -> VPLogger.d("Write response: $status") }
-
     private val heartDataListener = IHeartDataListener { data ->
         val heartResult = mapOf<String, Any?>(
             "data" to data?.data,

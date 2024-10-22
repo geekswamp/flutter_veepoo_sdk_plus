@@ -3,7 +3,7 @@
 /// {@endtemplate}
 enum DeviceBindingStatus {
   /// Unknown device status.
-  unknown('UNKNOWN'),
+  unknown('UNKNOW'),
 
   /// Failed to check the device.
   checkFail('CHECK_FAIL'),

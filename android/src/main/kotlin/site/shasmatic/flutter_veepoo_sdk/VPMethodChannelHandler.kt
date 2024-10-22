@@ -121,13 +121,7 @@ class VPMethodChannelHandler(
 
     private fun handleBindDevice(password: String?, is24H: Boolean?) {
         if (password != null && is24H != null) {
-            getBluetoothManager(result).bindDevice(password, is24H) { status ->
-                if (status != null) {
-                    result.success(status.name)
-                } else {
-                    result.error("UNKNOWN_STATUS", "Binding status is null", null)
-                }
-            }
+            getBluetoothManager(result).bindDevice(password, is24H)
         } else {
             result.error("INVALID_ARGUMENT", "Password and 24-hour mode are required", null)
         }
