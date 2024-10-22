@@ -18,7 +18,7 @@ or add the plugin via git:
 dependencies:
   flutter_veepoo_sdk:
     git:
-      url: https://github.com/arifai/flutter_veepoo_sdk_plus.git
+      url: https://github.com/geekswamp/flutter_veepoo_sdk_plus.git
       ref: main
 ```
 
