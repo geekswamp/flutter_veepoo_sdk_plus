@@ -32,8 +32,14 @@ export 'enums/spoh_statuses.dart';
 /// A Flutter plugin for Veepoo SDK.
 /// {@endtemplate}
 class FlutterVeepooSdk {
+  FlutterVeepooSdk._();
+
+  static final FlutterVeepooSdk _instance = FlutterVeepooSdk._();
+
+  factory FlutterVeepooSdk() => _instance;
+
   /// {@macro flutter_veepoo_sdk}
-  FlutterVeepooSdk();
+  static FlutterVeepooSdk get instance => _instance;
 
   final FlutterVeepooSdkPlatform _platform = FlutterVeepooSdkPlatform.instance;
 
