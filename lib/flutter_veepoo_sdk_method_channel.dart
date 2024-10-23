@@ -298,7 +298,8 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<Battery?> readBattery() async {
     try {
       if (await isDeviceConnected() == true) {
-        final result = await methodChannel.invokeMapMethod<String, dynamic>('readBattery');
+        final result =
+            await methodChannel.invokeMapMethod<String, dynamic>('readBattery');
         return result != null ? Battery.fromJson(result) : null;
       } else {
         throw DeviceConnectionException('Device is not connected');
@@ -313,7 +314,9 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   /// Returns a [Stream] of [List] of [BluetoothDevice] objects.
   @override
   Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
-    return scanBluetoothEventChannel.receiveBroadcastStream().map((event) {
+    return scanBluetoothEventChannel
+        .receiveBroadcastStream()
+        .asyncMap((event) async {
       if (event is List) {
         return event
             .whereType<Map<String, dynamic>>()
