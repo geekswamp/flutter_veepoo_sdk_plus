@@ -27,6 +27,7 @@ import site.shasmatic.flutter_veepoo_sdk.VPLogger
 import site.shasmatic.flutter_veepoo_sdk.VPWriteResponse
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import site.shasmatic.flutter_veepoo_sdk.statuses.PermissionStatuses
+import kotlin.math.abs
 
 /**
  * Manages Bluetooth operations for the Flutter Veepoo SDK plugin.
@@ -49,7 +50,7 @@ class VPBluetoothManager(
     private var isEnabled = true
     private var isSubmitted = false
     private var permissionCallback: ((PermissionStatuses) -> Unit)? = null
-    private val discoveredDevices = mutableListOf<String>()
+    private val discoveredDevices = mutableMapOf<String, Map<String, Any>>()
     private val sendEvent = SendEvent(bluetoothEventSink)
     private val currentGatt = vpManager.currentConnectGatt
     private val writeResponse: VPWriteResponse = VPWriteResponse()
@@ -286,18 +287,35 @@ class VPBluetoothManager(
     private fun startScanDevices() = vpManager.startScanDevice(searchResponseCallBack)
 
     private val searchResponseCallBack = object : SearchResponse {
-        override fun onSearchStarted() = VPLogger.i("Bluetooth scan started")
+        override fun onSearchStarted() {
+            VPLogger.i("Bluetooth scan started")
+            discoveredDevices.clear()
+        }
 
         override fun onDeviceFounded(result: SearchResult?) {
             result?.let {
-                if (!discoveredDevices.contains(it.address)) {
-                    discoveredDevices.add(it.address)
-                    sendEvent.sendBluetoothEvent(mapOf("name" to it.name, "address" to it.address, "rssi" to it.rssi))
+                val deviceMap = mapOf(
+                    "name" to it.name,
+                    "address" to it.address,
+                    "rssi" to it.rssi
+                )
+
+                if (discoveredDevices.put(it.address, deviceMap) == null) {
+                    sendEvent.sendBluetoothEvent(discoveredDevices.values.toList())
+                } else {
+                    val existingDevice = discoveredDevices[it.address]
+                    if (existingDevice != null && abs(existingDevice["rssi"] as Int - it.rssi) > 10) {
+                        discoveredDevices[it.address] = deviceMap
+                        sendEvent.sendBluetoothEvent(discoveredDevices.values.toList())
+                    }
                 }
             }
         }
 
-        override fun onSearchStopped() = VPLogger.i("Bluetooth scan stopped")
+        override fun onSearchStopped() {
+            VPLogger.i("Bluetooth scan stopped")
+            sendEvent.sendBluetoothEvent(discoveredDevices.values.toList())
+        }
 
         override fun onSearchCanceled() = VPLogger.i("Bluetooth scan canceled")
     }

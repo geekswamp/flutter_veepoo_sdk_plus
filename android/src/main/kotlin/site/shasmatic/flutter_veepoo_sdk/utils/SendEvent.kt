@@ -23,7 +23,7 @@ class SendEvent(private val eventSink: EventChannel.EventSink?) {
      *
      * @param scanResult A map containing the Bluetooth scan result data.
      */
-    fun sendBluetoothEvent(scanResult: Map<String, Any>) {
+    fun sendBluetoothEvent(scanResult: List<Map<String, Any?>>) {
         sendEvent(scanResult)
     }
 

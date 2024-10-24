@@ -313,19 +313,23 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   ///
   /// Returns a [Stream] of [List] of [BluetoothDevice] objects.
   @override
-  Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
+  Stream<List<BluetoothDevice>> get scanBluetoothDevices {
     return scanBluetoothEventChannel.receiveBroadcastStream().map((event) {
+      if (event == null) return [];
+
       if (event is List) {
-        return event
-            .whereType<Map<String, dynamic>>()
-            .map(BluetoothDevice.fromJson)
-            .toList();
-      } else if (event is Map<String, dynamic> ||
-          event is Map<Object?, Object?>) {
-        return [BluetoothDevice.fromJson(Map<String, dynamic>.from(event))];
-      } else {
-        throw UnexpectedEventTypeException('${event.runtimeType}');
+        return event.map((item) {
+          if (item is Map<Object?, Object?>) {
+            final convertedMap = Map<String, dynamic>.from(
+              item.map((key, value) => MapEntry(key.toString(), value)),
+            );
+            return BluetoothDevice.fromJson(convertedMap);
+          }
+          throw UnexpectedEventTypeException('${item.runtimeType}');
+        }).toList();
       }
+
+      throw UnexpectedEventTypeException('${event.runtimeType}');
     });
   }
 
