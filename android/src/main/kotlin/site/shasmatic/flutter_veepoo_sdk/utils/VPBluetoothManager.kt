@@ -8,6 +8,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import com.inuker.bluetooth.library.Code
 import com.inuker.bluetooth.library.Constants
 import com.inuker.bluetooth.library.search.SearchResult
 import com.inuker.bluetooth.library.search.response.SearchResponse
@@ -330,10 +331,10 @@ class VPBluetoothManager(
     }
 
     private val connectResponseCallBack =
-        IConnectResponse { state, _, success ->
+        IConnectResponse { state, _, _ ->
             if (!isSubmitted) {
                 isSubmitted = true
-                if (success) {
+                if (state == Code.REQUEST_SUCCESS) {
                     result.success("Connected to device")
                 } else {
                     VPLogger.e("Failed to connect to device: $state")
@@ -345,7 +346,7 @@ class VPBluetoothManager(
     private val notifyResponseCallBack = INotifyResponse { state ->
         if (!isSubmitted) {
             isSubmitted = true
-            if (state == Constants.REQUEST_SUCCESS) {
+            if (state == Code.REQUEST_SUCCESS) {
                 result.success("Notification enabled")
             } else {
                 VPLogger.e("Failed to enable notification: $state")
