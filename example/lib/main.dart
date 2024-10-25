@@ -15,32 +15,32 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _flutterVeepooSdkPlugin = FlutterVeepooSdk();
+  final _veepooSdk = VeepooSDK.instance;
   final List<BluetoothDevice> _bluetoothDevices = [];
 
   void _requestPermissions() async {
     final PermissionStatuses? status =
-        await _flutterVeepooSdkPlugin.requestBluetoothPermissions();
+        await _veepooSdk.requestBluetoothPermissions();
     if (status == PermissionStatuses.permanentlyDenied) {
-      await _flutterVeepooSdkPlugin.openAppSettings();
+      await _veepooSdk.openAppSettings();
     }
   }
 
   void _openBluetooth() async {
-    await _flutterVeepooSdkPlugin.openBluetooth();
+    await _veepooSdk.openBluetooth();
   }
 
   void _closeBluetooth() async {
-    await _flutterVeepooSdkPlugin.closeBluetooth();
+    await _veepooSdk.closeBluetooth();
   }
 
   void _scanDevices() async {
-    _flutterVeepooSdkPlugin.scanDevices();
+    _veepooSdk.scanDevices();
   }
 
   Future<void> _connectDevice(String address) async {
     try {
-      await _flutterVeepooSdkPlugin.connectDevice(address);
+      await _veepooSdk.connectDevice(address);
     } catch (e) {
       debugPrint('Failed to connect to device: $e');
     }
@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
 
   void _disconnectDevice() async {
     try {
-      await _flutterVeepooSdkPlugin.disconnectDevice();
+      await _veepooSdk.disconnectDevice();
     } catch (e) {
       debugPrint('Failed to disconnect from device: $e');
     }
@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp> {
 
   void _starDetectHeart() async {
     try {
-      await _flutterVeepooSdkPlugin.startDetectHeartAfterBinding('0000', true);
+      await _veepooSdk.startDetectHeartAfterBinding('0000', true);
     } catch (e) {
       debugPrint('Failed to start detect heart: $e');
     }
@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
 
   void _stopDetectHeart() async {
     try {
-      await _flutterVeepooSdkPlugin.stopDetectHeart();
+      await _veepooSdk.stopDetectHeart();
     } catch (e) {
       debugPrint('Failed to stop detect heart: $e');
     }
@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> {
 
   void _startDetectSpoh() async {
     try {
-      await _flutterVeepooSdkPlugin.startDetectSpohAfterBinding('0000', true);
+      await _veepooSdk.startDetectSpohAfterBinding('0000', true);
     } catch (e) {
       debugPrint('Failed to start detect spoh: $e');
     }
@@ -80,7 +80,7 @@ class _MyAppState extends State<MyApp> {
 
   void _stopDetectSpoh() async {
     try {
-      await _flutterVeepooSdkPlugin.stopDetectSpoh();
+      await _veepooSdk.stopDetectSpoh();
     } catch (e) {
       debugPrint('Failed to stop detect spoh: $e');
     }
@@ -88,7 +88,7 @@ class _MyAppState extends State<MyApp> {
 
   void _readBattery() async {
     try {
-      await _flutterVeepooSdkPlugin.readBattery();
+      await _veepooSdk.readBattery();
     } catch (e) {
       debugPrint('Failed to read battery: $e');
     }
@@ -105,7 +105,7 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: [
               StreamBuilder(
-                stream: _flutterVeepooSdkPlugin.heartRate,
+                stream: _veepooSdk.heartRate,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Text(
@@ -122,7 +122,7 @@ class _MyAppState extends State<MyApp> {
               ),
               const SizedBox(height: 6),
               StreamBuilder(
-                stream: _flutterVeepooSdkPlugin.spoh,
+                stream: _veepooSdk.spoh,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Text(
@@ -189,7 +189,7 @@ class _MyAppState extends State<MyApp> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               StreamBuilder(
-                stream: _flutterVeepooSdkPlugin.scanBluetoothDevices,
+                stream: _veepooSdk.scanBluetoothDevices,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     _bluetoothDevices.addAll(snapshot.data ?? []);
@@ -208,7 +208,7 @@ class _MyAppState extends State<MyApp> {
                               await _connectDevice(item.address ?? '');
 
                               debugPrint(
-                                  'Connected device address: ${await _flutterVeepooSdkPlugin.getAddress()}');
+                                  'Connected device address: ${await _veepooSdk.getAddress()}');
                             },
                           );
                         },
