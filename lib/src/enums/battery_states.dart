@@ -1,4 +1,6 @@
-/// {@template battery_states}
+part of '../../flutter_veepoo_sdk.dart';
+
+/// {@template flutter_veepoo_sdk.battery_states}
 /// This file contains the enum for battery states
 /// {@endtemplate}
 enum BatteryStates {
@@ -8,7 +10,7 @@ enum BatteryStates {
   /// The battery is sleep.
   sleep(1);
 
-  /// {@macro battery_states}
+  /// {@macro flutter_veepoo_sdk.battery_states}
   const BatteryStates(this.intValue);
 
   /// The value of the battery state.

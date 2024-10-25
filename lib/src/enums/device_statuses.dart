@@ -1,4 +1,6 @@
-/// {@template device_statuses}
+part of '../../flutter_veepoo_sdk.dart';
+
+/// {@template flutter_veepoo_sdk.device_statuses}
 /// An enum for device statuses.
 /// {@endtemplate}
 enum DeviceStatuses {
@@ -38,7 +40,7 @@ enum DeviceStatuses {
   /// The status when the device is unknown.
   unknown('UNKONW');
 
-  /// {@macro device_statuses}
+  /// {@macro flutter_veepoo_sdk.device_statuses}
   const DeviceStatuses(this.statusValue);
 
   /// The value of the status.

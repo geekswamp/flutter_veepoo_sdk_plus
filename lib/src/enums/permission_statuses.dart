@@ -1,4 +1,6 @@
-/// {@template permission_status}
+part of '../../flutter_veepoo_sdk.dart';
+
+/// {@template flutter_veepoo_sdk.permission_status}
 /// The status of a permission.
 /// {@endtemplate}
 enum PermissionStatuses {
@@ -17,7 +19,7 @@ enum PermissionStatuses {
   /// The permission to access the requested feature is unknown.
   unknown('UNKNOWN');
 
-  /// {@macro permission_status}
+  /// {@macro flutter_veepoo_sdk.permission_status}
   const PermissionStatuses(this.statusValue);
 
   /// The value of the status.

@@ -1,10 +1,10 @@
-import 'package:equatable/equatable.dart';
+part of '../../flutter_veepoo_sdk.dart';
 
-/// {@template bluetooth_device}
+/// {@template flutter_veepoo_sdk.bluetooth_device}
 /// Represents the result of a Bluetooth scan.
 /// {@endtemplate}
 class BluetoothDevice extends Equatable {
-  /// {@macro bluetooth_device}
+  /// {@macro flutter_veepoo_sdk.bluetooth_device}
   const BluetoothDevice({this.name, this.address, this.rssi});
 
   /// The name of the Bluetooth device.

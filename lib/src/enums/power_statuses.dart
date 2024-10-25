@@ -1,4 +1,6 @@
-/// {@template power_statuses}
+part of '../../flutter_veepoo_sdk.dart';
+
+/// {@template flutter_veepoo_sdk.power_statuses}
 /// This file contains the enum for power statuses
 /// {@endtemplate}
 enum PowerStatuses {
@@ -14,7 +16,7 @@ enum PowerStatuses {
   /// The power is full.
   full(3);
 
-  /// {@macro power_statuses}
+  /// {@macro flutter_veepoo_sdk.power_statuses}
   const PowerStatuses(this.intValue);
 
   /// The value of the power status.

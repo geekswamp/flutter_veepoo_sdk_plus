@@ -1,4 +1,6 @@
-/// {@template device_binding_statuses}
+part of '../../flutter_veepoo_sdk.dart';
+
+/// {@template flutter_veepoo_sdk.device_binding_statuses}
 /// This file contains the device binding statuses.
 /// {@endtemplate}
 enum DeviceBindingStatus {
@@ -26,7 +28,7 @@ enum DeviceBindingStatus {
   /// Successfully check time.
   checkAndTimeSuccess('CHECK_AND_TIME_SUCCESS');
 
-  /// {@macro device_binding_statuses}
+  /// {@macro flutter_veepoo_sdk.device_binding_statuses}
   const DeviceBindingStatus(this.statusValue);
 
   /// The value of the status.

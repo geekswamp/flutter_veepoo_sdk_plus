@@ -1,4 +1,6 @@
-/// {@template spoh_statuses}
+part of '../../flutter_veepoo_sdk.dart';
+
+/// {@template flutter_veepoo_sdk.spoh_statuses}
 /// An enum for spoh statuses.
 /// {@endtemplate}
 enum SpohStatuses {
@@ -14,7 +16,7 @@ enum SpohStatuses {
   /// The status when the spoh is unknown.
   unknown('UNKONW');
 
-  /// {@macro spoh_statuses}
+  /// {@macro flutter_veepoo_sdk.spoh_statuses}
   const SpohStatuses(this.statusValue);
 
   /// The value of the status.

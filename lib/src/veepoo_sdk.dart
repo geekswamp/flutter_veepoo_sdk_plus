@@ -1,0 +1,144 @@
+part of '../flutter_veepoo_sdk.dart';
+
+/// A general class for Flutter Veepoo SDK.
+///
+/// Don't use this class directly, use [VeepooSDK.instance] instead.
+class VeepooSDK {
+  VeepooSDK._();
+
+  /// The instance of [VeepooSDK].
+  static final VeepooSDK instance = VeepooSDK._();
+
+  final FlutterVeepooSdkPlatform _platform = FlutterVeepooSdkPlatform.instance;
+
+  /// Requests the necessary permissions to use Bluetooth.
+  Future<PermissionStatuses?> requestBluetoothPermissions() {
+    return _platform.requestBluetoothPermissions();
+  }
+
+  /// Open app settings.
+  Future<void> openAppSettings() {
+    return _platform.openAppSettings();
+  }
+
+  /// Check if Bluetooth is enabled.
+  Future<bool?> isBluetoothEnabled() {
+    return _platform.isBluetoothEnabled();
+  }
+
+  /// Open Bluetooth.
+  Future<void> openBluetooth() {
+    return _platform.openBluetooth();
+  }
+
+  /// Close Bluetooth.
+  Future<void> closeBluetooth() {
+    return _platform.closeBluetooth();
+  }
+
+  /// Scans Bluetooth devices.
+  Future<void> scanDevices() {
+    return _platform.scanDevices();
+  }
+
+  /// Stop scan Bluetooth devices.
+  Future<void> stopScanDevices() {
+    return _platform.stopScanDevices();
+  }
+
+  /// Connects to a Bluetooth device, or you can simply use [connectAndBindDevice] to connect and bind device.
+  Future<void> connectDevice(String address) {
+    return _platform.connectDevice(address);
+  }
+
+  /// Disconnects from a Bluetooth device.
+  Future<void> disconnectDevice() {
+    return _platform.disconnectDevice();
+  }
+
+  /// Bind device with password and is24H. This function can be used after successfully connecting to the device.
+  /// This function will return a [DeviceBindingStatus] to indicate the status of the device binding.
+  Future<DeviceBindingStatus?> bindDevice(String password, bool is24H) {
+    return _platform.bindDevice(password, is24H);
+  }
+
+  /// Get connected device address.
+  Future<String?> getAddress() {
+    return _platform.getAddress();
+  }
+
+  /// Get current status.
+  Future<int?> getCurrentStatus() {
+    return _platform.getCurrentStatus();
+  }
+
+  /// Check if the device is connected.
+  Future<bool?> isDeviceConnected() {
+    return _platform.isDeviceConnected();
+  }
+
+  /// Start detect heart rate.
+  /// This function is used to start detecting heart rate. The device will return the heart rate data to the app.
+  ///
+  /// Please use [bindDevice] before calling this function or you can use [startDetectHeartAfterBinding] to bind and start detect heart rate.
+  Future<void> startDetectHeart() {
+    return _platform.startDetectHeart();
+  }
+
+  /// Start detect heart rate after binding.
+  Future<void> startDetectHeartAfterBinding(String password, bool is24H) {
+    return _platform.startDetectHeartAfterBinding(password, is24H);
+  }
+
+  /// Stop detect heart rate.
+  Future<void> stopDetectHeart() {
+    return _platform.stopDetectHeart();
+  }
+
+  /// Setting heart rate warning.
+  Future<void> settingHeartRate(int high, int low, bool open) {
+    return _platform.settingHeartWarning(high, low, open);
+  }
+
+  /// Read heart rate warning.
+  Future<void> readHeartRate() {
+    return _platform.readHeartWarning();
+  }
+
+  /// Start detect SPOH (blood oxygen).
+  /// This function is used to start detecting SPOH (blood oxygen). The device will return the SPOH data to the app.
+  /// Please use [bindDevice] before calling this function or you can use [startDetectSpohAfterBinding] to bind and start detect SPOH.
+  Future<void> startDetectSpoh() {
+    return _platform.startDetectSpoh();
+  }
+
+  /// Start detect SPOH (blood oxygen) after binding.
+  Future<void> startDetectSpohAfterBinding(String password, bool is24H) {
+    return _platform.startDetectSpohAfterBinding(password, is24H);
+  }
+
+  /// Stop detect SPOH (blood oxygen).
+  Future<void> stopDetectSpoh() {
+    return _platform.stopDetectSpoh();
+  }
+
+  /// Read battery level.
+  Future<Battery?> readBattery() {
+    return _platform.readBattery();
+  }
+
+  /// Stream of Bluetooth scan results.
+  Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
+    return _platform.scanBluetoothDevices;
+  }
+
+  /// Stream of heart rate results.
+  Stream<HeartRate?> get heartRate {
+    return _platform.heartRate;
+  }
+
+  /// Stream of SPOH (blood oxygen) results.
+  Stream<Spoh?> get spoh {
+    return _platform.spoh;
+  }
+}

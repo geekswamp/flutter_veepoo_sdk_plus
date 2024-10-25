@@ -1,12 +1,10 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter_veepoo_sdk/enums/device_statuses.dart';
-import 'package:flutter_veepoo_sdk/enums/spoh_statuses.dart';
+part of '../../flutter_veepoo_sdk.dart';
 
-/// {@template spoh}
+/// {@template flutter_veepoo_sdk.spoh}
 /// Represents the result of a SPOH (blood oxygen).
 /// {@endtemplate}
 class Spoh extends Equatable {
-  /// {@macro spoh}
+  /// {@macro flutter_veepoo_sdk.spoh}
   const Spoh(
     this.spohStatuses,
     this.deviceStatuses,

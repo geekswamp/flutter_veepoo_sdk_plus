@@ -1,13 +1,10 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter_veepoo_sdk/enums/battery_levels.dart';
-import 'package:flutter_veepoo_sdk/enums/battery_states.dart';
-import 'package:flutter_veepoo_sdk/enums/power_statuses.dart';
+part of '../../flutter_veepoo_sdk.dart';
 
-/// {@template battery}
+/// {@template flutter_veepoo_sdk.battery}
 /// Represents the result of a battery.
 /// {@endtemplate}
 class Battery extends Equatable {
-  /// {@macro battery}
+  /// {@macro flutter_veepoo_sdk.battery}
   const Battery(
     this.level,
     this.percent,

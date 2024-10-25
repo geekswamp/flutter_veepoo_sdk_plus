@@ -1,11 +1,10 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter_veepoo_sdk/enums/heart_statuses.dart';
+part of '../../flutter_veepoo_sdk.dart';
 
-/// {@template heart_rate}
+/// {@template flutter_veepoo_sdk.heart_rate}
 /// A class that represents the result of a heart rate detection.
 /// {@endtemplate}
 class HeartRate extends Equatable {
-  /// {@macro heart_rate}
+  /// {@macro flutter_veepoo_sdk.heart_rate}
   const HeartRate(this.data, this.state);
 
   /// The heart rate data.

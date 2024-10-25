@@ -1,18 +1,4 @@
-import 'package:flutter/services.dart';
-import 'package:flutter_veepoo_sdk/exceptions/battery_exception.dart';
-import 'package:flutter_veepoo_sdk/exceptions/device_connection_exception.dart';
-import 'package:flutter_veepoo_sdk/exceptions/heart_detection_exception.dart';
-import 'package:flutter_veepoo_sdk/exceptions/permission_exception.dart';
-import 'package:flutter_veepoo_sdk/exceptions/spoh_detection_exception.dart';
-import 'package:flutter_veepoo_sdk/exceptions/unexpected_event_type_exception.dart';
-import 'package:flutter_veepoo_sdk/enums/device_binding_statuses.dart';
-import 'package:flutter_veepoo_sdk/enums/permission_statuses.dart';
-
-import 'flutter_veepoo_sdk_platform_interface.dart';
-import 'models/battery.dart';
-import 'models/bluetooth_device.dart';
-import 'models/heart_rate.dart';
-import 'models/spoh.dart';
+part of '../flutter_veepoo_sdk.dart';
 
 /// {@template method_channel_flutter_veepoo_sdk}
 /// An implementation of [FlutterVeepooSdkPlatform] that uses method channels.

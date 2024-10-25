@@ -1,4 +1,6 @@
-/// {@template battery_levels}
+part of '../../flutter_veepoo_sdk.dart';
+
+/// {@template flutter_veepoo_sdk.battery_levels}
 /// This file contains the enum for battery levels
 /// {@endtemplate}
 enum BatteryLevels {
@@ -14,7 +16,7 @@ enum BatteryLevels {
   /// Full battery level.
   full(4);
 
-  /// {@macro battery_levels}
+  /// {@macro flutter_veepoo_sdk.battery_levels}
   const BatteryLevels(this.intValue);
 
   /// The value of the battery level.

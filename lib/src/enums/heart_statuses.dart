@@ -1,4 +1,6 @@
-/// {@template heart_statuses}
+part of '../../flutter_veepoo_sdk.dart';
+
+/// {@template flutter_veepoo_sdk.heart_statuses}
 /// An enum for heart statuses.
 /// {@endtemplate}
 enum HeartStatuses {
@@ -17,7 +19,7 @@ enum HeartStatuses {
   /// The normal state of the heart.
   heartNormal('STATE_HEART_NORMAL');
 
-  /// {@macro heart_statuses}
+  /// {@macro flutter_veepoo_sdk.heart_statuses}
   const HeartStatuses(this.statusValue);
 
   /// The value of the state.
