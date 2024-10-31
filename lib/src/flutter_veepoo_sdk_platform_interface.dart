@@ -147,9 +147,9 @@ abstract class FlutterVeepooSdkPlatform extends PlatformInterface {
   }
 
   /// Stream of Bluetooth scan results.
-  Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
+  Stream<List<BluetoothDevice>?> get bluetoothDevices {
     throw UnimplementedError(
-      'scanBluetoothEventChannel has not been implemented.',
+      'bluetoothEventChannel has not been implemented.',
     );
   }
 

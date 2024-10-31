@@ -8,7 +8,7 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
 
   final MethodChannel methodChannel =
       const MethodChannel('$_channelName/command');
-  final EventChannel scanBluetoothEventChannel =
+  final EventChannel bluetoothEventChannel =
       const EventChannel('$_channelName/scan_bluetooth_event_channel');
   final EventChannel heartRateEventChannel =
       const EventChannel('$_channelName/detect_heart_event_channel');
@@ -376,8 +376,8 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   ///
   /// Returns a [Stream] of [List] of [BluetoothDevice] objects.
   @override
-  Stream<List<BluetoothDevice>> get scanBluetoothDevices {
-    return scanBluetoothEventChannel.receiveBroadcastStream().map((event) {
+  Stream<List<BluetoothDevice>> get bluetoothDevices {
+    return bluetoothEventChannel.receiveBroadcastStream().map((event) {
       if (event == null) return [];
 
       if (event is List) {
