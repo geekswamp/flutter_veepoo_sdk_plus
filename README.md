@@ -73,7 +73,7 @@ await _veepooSDK.scanDevices();
 - You can listen to the scan results using the `scanBluetoothResult` stream:
 
 ```dart
-_veepooSDK.scanBluetoothResult.listen((List<BluetoothDevice>? devices) {
+_veepooSDK.bluetoothDevices.listen((List<BluetoothDevice>? devices) {
   print(results);
 });
 ```
