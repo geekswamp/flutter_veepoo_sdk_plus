@@ -25,8 +25,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       final String? status = await methodChannel
           .invokeMethod<String>('requestBluetoothPermissions');
       return status != null ? PermissionStatuses.fromString(status) : null;
-    } on PlatformException catch (e) {
-      throw PermissionException('Failed to request permissions: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to request permission: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -35,8 +39,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<void> openAppSettings() async {
     try {
       await methodChannel.invokeMethod<void>('openAppSettings');
-    } on PlatformException catch (e) {
-      throw PermissionException('Failed to open app settings: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to open app settings: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -53,8 +61,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<void> openBluetooth() async {
     try {
       await methodChannel.invokeMethod<void>('openBluetooth');
-    } on PlatformException catch (e) {
-      throw PermissionException('Failed to open Bluetooth: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to open Bluetooth: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -63,8 +75,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<void> closeBluetooth() async {
     try {
       await methodChannel.invokeMethod<void>('closeBluetooth');
-    } on PlatformException catch (e) {
-      throw PermissionException('Failed to close Bluetooth: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to close Bluetooth: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -73,8 +89,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<void> scanDevices() async {
     try {
       await methodChannel.invokeMethod<void>('scanDevices');
-    } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to scan devices: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to scan devices: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -83,8 +103,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<void> stopScanDevices() async {
     try {
       await methodChannel.invokeMethod<void>('stopScanDevices');
-    } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to stop scan devices: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to stop scan devices: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -98,8 +122,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
         'connectDevice',
         {'address': address},
       );
-    } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to connect address $address: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to connect address $address: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -112,10 +140,14 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       if (await isDeviceConnected() == true) {
         await methodChannel.invokeMethod<void>('disconnectDevice');
       } else {
-        throw DeviceConnectionException('Device is not connected');
+        throw const VeepooException(message: 'Device is not connected');
       }
-    } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to disconnect from device: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to disconnect from device: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -127,8 +159,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<String?> getAddress() async {
     try {
       return await methodChannel.invokeMethod<String>('getAddress');
-    } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to get address: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to get address: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -140,8 +176,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<int?> getCurrentStatus() async {
     try {
       return await methodChannel.invokeMethod<int>('getCurrentStatus');
-    } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to get current status: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to get current status: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -153,8 +193,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<bool?> isDeviceConnected() async {
     try {
       return await methodChannel.invokeMethod<bool>('isDeviceConnected');
-    } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to check device connection: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to check device connection: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -171,8 +215,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       );
 
       return result != null ? DeviceBindingStatus.fromString(result) : null;
-    } on PlatformException catch (e) {
-      throw DeviceConnectionException('Failed to bind device: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to bind device: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -186,10 +234,14 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       if (await isDeviceConnected() == true) {
         await methodChannel.invokeMethod<void>('startDetectHeart');
       } else {
-        throw DeviceConnectionException('Device is not connected');
+        throw const VeepooException(message: 'Device is not connected');
       }
-    } on PlatformException catch (e) {
-      throw HeartDetectionException('Failed to start detect heart: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to start detect heart: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -203,8 +255,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       if (status == DeviceBindingStatus.checkAndTimeSuccess) {
         await startDetectHeart();
       }
-    } on PlatformException catch (e) {
-      throw HeartDetectionException('Failed to start detect heart: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to start detect heart: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -217,10 +273,14 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       if (await isDeviceConnected() == true) {
         await methodChannel.invokeMethod<void>('stopDetectHeart');
       } else {
-        throw DeviceConnectionException('Device is not connected');
+        throw const VeepooException(message: 'Device is not connected');
       }
-    } on PlatformException catch (e) {
-      throw HeartDetectionException('Failed to stop detect heart: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to stop detect heart: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -247,8 +307,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
   Future<void> startDetectSpoh() async {
     try {
       await methodChannel.invokeMethod<void>('startDetectSpoh');
-    } on PlatformException catch (e) {
-      throw SpohDetectionException('Failed to start detect blood oxygen: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to start detect blood oxygen: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -260,8 +324,12 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       if (status == DeviceBindingStatus.checkAndTimeSuccess) {
         await startDetectSpoh();
       }
-    } on PlatformException catch (e) {
-      throw SpohDetectionException('Failed to start detect blood oxygen: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to start detect blood oxygen: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -272,10 +340,14 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
       if (await isDeviceConnected() == true) {
         await methodChannel.invokeMethod<void>('stopDetectSpoh');
       } else {
-        throw DeviceConnectionException('Device is not connected');
+        throw const VeepooException(message: 'Device is not connected');
       }
-    } on PlatformException catch (e) {
-      throw SpohDetectionException('Failed to stop detect blood oxygen: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to stop detect blood oxygen: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -288,10 +360,15 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
             await methodChannel.invokeMapMethod<String, dynamic>('readBattery');
         return result != null ? Battery.fromJson(result) : null;
       } else {
-        throw DeviceConnectionException('Device is not connected');
+        // throw DeviceConnectionException('Device is not connected');
+        throw const VeepooException(message: 'Device is not connected');
       }
-    } on PlatformException catch (e) {
-      throw BatteryException('Failed to read battery: $e');
+    } on PlatformException catch (error, stackTrace) {
+      throw VeepooException(
+        message: 'Failed to read battery: ${error.message}',
+        details: error.details,
+        stacktrace: stackTrace,
+      );
     }
   }
 
@@ -311,11 +388,15 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
             );
             return BluetoothDevice.fromJson(convertedMap);
           }
-          throw UnexpectedEventTypeException('${item.runtimeType}');
+          throw VeepooException(
+            message: 'Unexpected event type: ${item.runtimeType}',
+          );
         }).toList();
       }
 
-      throw UnexpectedEventTypeException('${event.runtimeType}');
+      throw VeepooException(
+        message: 'Unexpected event type: ${event.runtimeType}',
+      );
     });
   }
 
@@ -331,7 +412,9 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
 
         return HeartRate.fromJson(result);
       } else {
-        throw UnexpectedEventTypeException('${event.runtimeType}');
+        throw VeepooException(
+          message: 'Unexpected event type: ${event.runtimeType}',
+        );
       }
     });
   }
@@ -348,7 +431,9 @@ class MethodChannelFlutterVeepooSdk extends FlutterVeepooSdkPlatform {
 
         return Spoh.fromJson(result);
       } else {
-        throw UnexpectedEventTypeException('${event.runtimeType}');
+        throw VeepooException(
+          message: 'Unexpected event type: ${event.runtimeType}',
+        );
       }
     });
   }
