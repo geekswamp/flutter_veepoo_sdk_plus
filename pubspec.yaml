@@ -1,6 +1,6 @@
 name: flutter_veepoo_sdk
 description: This plugin provides integration of the Veepoo SDK with Flutter, enabling easy use of Veepoo smartwatch in Flutter applications with additional features.
-version: 0.0.1
+version: 0.0.2
 homepage: https://shasmatic.site
 repository: https://github.com/geekswamp/flutter_veepoo_sdk_plus
 issue_tracker: https://github.com/geekswamp/flutter_veepoo_sdk_plus/issues
