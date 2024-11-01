@@ -189,7 +189,7 @@ class _MyAppState extends State<MyApp> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               StreamBuilder(
-                stream: _veepooSdk.scanBluetoothDevices,
+                stream: _veepooSdk.bluetoothDevices,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     _bluetoothDevices.addAll(snapshot.data ?? []);

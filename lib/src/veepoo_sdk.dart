@@ -208,7 +208,7 @@ class VeepooSDK {
   }
 
   /// Stream of Bluetooth scan results.
-  Stream<List<BluetoothDevice>?> get scanBluetoothDevices {
+  Stream<List<BluetoothDevice>?> get bluetoothDevices {
     try {
       return _platform.bluetoothDevices;
     } on VeepooException {

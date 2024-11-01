@@ -1,3 +1,7 @@
+## 0.0.3
+
+* Change Stream name from `scanBluetoothDevices` to `bluetoothDevices`.
+
 ## 0.0.2
 
 * Add Bluetooth connectivity.
