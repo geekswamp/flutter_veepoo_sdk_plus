@@ -3,7 +3,7 @@ part of '../../flutter_veepoo_sdk.dart';
 /// {@template flutter_veepoo_sdk.heart_rate}
 /// A class that represents the result of a heart rate detection.
 /// {@endtemplate}
-class HeartRate extends Equatable {
+final class HeartRate extends Equatable {
   /// {@macro flutter_veepoo_sdk.heart_rate}
   const HeartRate(this.data, this.state);
 

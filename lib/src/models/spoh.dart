@@ -3,7 +3,7 @@ part of '../../flutter_veepoo_sdk.dart';
 /// {@template flutter_veepoo_sdk.spoh}
 /// Represents the result of a SPOH (blood oxygen).
 /// {@endtemplate}
-class Spoh extends Equatable {
+final class Spoh extends Equatable {
   /// {@macro flutter_veepoo_sdk.spoh}
   const Spoh(
     this.spohStatuses,

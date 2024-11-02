@@ -3,7 +3,7 @@ part of '../../flutter_veepoo_sdk.dart';
 /// {@template flutter_veepoo_sdk.bluetooth_device}
 /// Represents the result of a Bluetooth scan.
 /// {@endtemplate}
-class BluetoothDevice extends Equatable {
+final class BluetoothDevice extends Equatable {
   /// {@macro flutter_veepoo_sdk.bluetooth_device}
   const BluetoothDevice({this.name, this.address, this.rssi});
 

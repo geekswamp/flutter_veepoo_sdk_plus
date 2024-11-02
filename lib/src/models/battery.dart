@@ -3,7 +3,7 @@ part of '../../flutter_veepoo_sdk.dart';
 /// {@template flutter_veepoo_sdk.battery}
 /// Represents the result of a battery.
 /// {@endtemplate}
-class Battery extends Equatable {
+final class Battery extends Equatable {
   /// {@macro flutter_veepoo_sdk.battery}
   const Battery(
     this.level,
