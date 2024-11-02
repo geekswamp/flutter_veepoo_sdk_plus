@@ -26,7 +26,7 @@ enum HeartStatuses {
   final String statusValue;
 
   /// Converts a string to a [HeartStatuses].
-  static HeartStatuses fromString(String status) {
+  factory HeartStatuses.fromString(String status) {
     return HeartStatuses.values.firstWhere((e) => e.statusValue == status);
   }
 

@@ -26,7 +26,7 @@ enum PermissionStatuses {
   final String statusValue;
 
   /// Converts a string to a [PermissionStatuses].
-  static PermissionStatuses fromString(String status) {
+  factory PermissionStatuses.fromString(String status) {
     return PermissionStatuses.values.firstWhere((e) => e.statusValue == status);
   }
 

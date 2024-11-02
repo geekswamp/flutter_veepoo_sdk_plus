@@ -47,7 +47,7 @@ enum DeviceStatuses {
   final String statusValue;
 
   /// Converts a string to a [DeviceStatuses].
-  static DeviceStatuses fromString(String status) {
+  factory DeviceStatuses.fromString(String status) {
     return DeviceStatuses.values.firstWhere((e) => e.statusValue == status);
   }
 

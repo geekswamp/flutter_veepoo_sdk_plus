@@ -35,7 +35,7 @@ enum DeviceBindingStatus {
   final String statusValue;
 
   /// Converts a string to a [DeviceBindingStatus].
-  static DeviceBindingStatus fromString(String status) {
+  factory DeviceBindingStatus.fromString(String status) {
     return DeviceBindingStatus.values
         .firstWhere((e) => e.statusValue == status);
   }

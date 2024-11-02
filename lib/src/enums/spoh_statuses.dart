@@ -23,7 +23,7 @@ enum SpohStatuses {
   final String statusValue;
 
   /// Converts a string to a [SpohStatuses].
-  static SpohStatuses fromString(String status) {
+  factory SpohStatuses.fromString(String status) {
     return SpohStatuses.values.firstWhere((e) => e.statusValue == status);
   }
 

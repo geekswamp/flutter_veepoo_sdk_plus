@@ -23,7 +23,7 @@ enum PowerStatuses {
   final int intValue;
 
   /// Converts an integer to a [PowerStatuses].
-  static PowerStatuses fromInt(int value) {
+  factory PowerStatuses.fromInt(int value) {
     return PowerStatuses.values.firstWhere((e) => e.intValue == value);
   }
 

@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Change to enums factory constructor.
+
 ## 0.0.3
 
 * Change Stream name from `scanBluetoothDevices` to `bluetoothDevices`.
