@@ -4,13 +4,37 @@ Flutter plugin for Veepoo smartwatch SDK. This plugin currently supports only on
 
 > Note: This plugin is still in development and not ready for production use.
 
+## Platform Support
+
+| **Features**                               | **Android** | **iOS**           |
+|--------------------------------------------|-------------|-------------------|
+| Request Bluetooth Permissions              | Supported   | Not Supported Yet |
+| Scan Bluetooth Devices                     | Supported   | Not Supported Yet |
+| Stop Scan Bluetooth Devices                | Supported   | Not Supported Yet |
+| Connect to Bluetooth Device                | Supported   | Not Supported Yet |
+| Disconnect from Bluetooth Device           | Supported   | Not Supported Yet |
+| Get Connected Bluetooth Device Mac Address | Supported   | Not Supported Yet |
+| Get Current Connection Status              | Supported   | Not Supported Yet |
+| Check Device Connection                    | Supported   | Not Supported Yet |
+| Open App Settings                          | Supported   | Not Supported Yet |
+| Open Bluetooth                             | Supported   | Not Supported Yet |
+| Close Bluetooth                            | Supported   | Not Supported Yet |
+| Bind Device with PIN                       | Supported   | Not Supported Yet |
+| Start Detect Heart Rate                    | Supported   | Not Supported Yet |
+| Stop Detect Heart Rate                     | Supported   | Not Supported Yet |
+| Start Detect SpO2                          | Supported   | Not Supported Yet |
+| Stop Detect SpO2                           | Supported   | Not Supported Yet |
+| Setting Heart Rate Alarm                   | Supported   | Not Supported Yet |
+| Read Setting Heart Rate Alarm              | Supported   | Not Supported Yet |
+| Get Device Battery Level                   | Supported   | Not Supported Yet |
+
 ## How to use
 
 1. Add the plugin to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_veepoo_sdk: ^0.0.1
+  flutter_veepoo_sdk: ^0.0.4
 ```
 or add the plugin via git:
 
