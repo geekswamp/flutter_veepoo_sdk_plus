@@ -1,3 +1,7 @@
+## 0.0.5
+
+* Update `README.md`.
+
 ## 0.0.4
 
 * Change to enums factory constructor.

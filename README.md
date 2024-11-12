@@ -17,6 +17,7 @@ Flutter plugin for Veepoo smartwatch SDK. This plugin currently supports only on
 | Get Current Connection Status              | Supported   | Not Supported Yet |
 | Check Device Connection                    | Supported   | Not Supported Yet |
 | Open App Settings                          | Supported   | Not Supported Yet |
+| Check Bluetooth Enabled or Not             | Supported   | Not Supported Yet |
 | Open Bluetooth                             | Supported   | Not Supported Yet |
 | Close Bluetooth                            | Supported   | Not Supported Yet |
 | Bind Device with PIN                       | Supported   | Not Supported Yet |
@@ -34,7 +35,7 @@ Flutter plugin for Veepoo smartwatch SDK. This plugin currently supports only on
 
 ```yaml
 dependencies:
-  flutter_veepoo_sdk: ^0.0.4
+  flutter_veepoo_sdk: ^0.0.5
 ```
 or add the plugin via git:
 
