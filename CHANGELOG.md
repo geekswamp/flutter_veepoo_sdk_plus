@@ -1,3 +1,13 @@
+## 0.0.6
+
+* Upgrade `vp_protocol` to `2.3.08.15.`
+* Upgrade `kotlin` version to `2.0.20`
+* Upgrade `gson` version to `2.12.1`
+* Upgrade `equatable` version to `2.0.7`
+* Upgrade `plugin_platform_interface` version to `2.1.8`
+* Upgrade `flutter_lints` version to `5.0.0`
+* Handle Bluetooth permission for Android Version < 12
+
 ## 0.0.5
 
 * Update `README.md`.
