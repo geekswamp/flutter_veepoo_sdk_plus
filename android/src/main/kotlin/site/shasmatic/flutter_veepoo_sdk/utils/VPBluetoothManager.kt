@@ -1,6 +1,9 @@
 package site.shasmatic.flutter_veepoo_sdk.utils
 
 import android.app.Activity
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -24,10 +27,17 @@ import com.veepoo.protocol.model.datas.FunctionSocailMsgData
 import com.veepoo.protocol.model.enums.EPwdStatus
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import site.shasmatic.flutter_veepoo_sdk.VPLogger
 import site.shasmatic.flutter_veepoo_sdk.VPWriteResponse
 import site.shasmatic.flutter_veepoo_sdk.exceptions.VPException
 import site.shasmatic.flutter_veepoo_sdk.statuses.PermissionStatuses
+import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 /**
@@ -55,9 +65,31 @@ class VPBluetoothManager(
     private val sendEvent = SendEvent(bluetoothEventSink)
     private val currentGatt = vpManager.currentConnectGatt
     private val writeResponse: VPWriteResponse = VPWriteResponse()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
+    private var retryCount: Int = 0
+    private var scanJob: Job? = null
+    private var operationTimeout: Job? = null
+    private var isPowerSaveMode = false
+    private var lastScanTime: Long = 0
 
     companion object {
         const val REQUEST_PERMISSIONS_CODE = 1001
+        const val MAX_RETRY_ATTEMPTS = 3
+        const val OPERATION_TIMEOUT_MS = 30000L
+        const val SCAN_TIMEOUT_MS = 60000L
+//        const val RSSI_THRESHOLD = 10
+    }
+
+    /**
+     * Initializes Bluetooth adapter based on Android version
+     */
+    private val bluetoothAdapter: BluetoothAdapter? by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            (activity.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)?.adapter
+        } else {
+            @Suppress("DEPRECATION")
+            BluetoothAdapter.getDefaultAdapter()
+        }
     }
 
     /**
@@ -79,18 +111,62 @@ class VPBluetoothManager(
     }
 
     private fun getRequiredPermissions(): Array<String> {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            arrayOf(
-                android.Manifest.permission.BLUETOOTH_SCAN,
-                android.Manifest.permission.BLUETOOTH_CONNECT,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        } else {
-            arrayOf(
-                android.Manifest.permission.BLUETOOTH,
-                android.Manifest.permission.BLUETOOTH_ADMIN,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            )
+        return when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                arrayOf(
+                    android.Manifest.permission.BLUETOOTH_SCAN,
+                    android.Manifest.permission.BLUETOOTH_CONNECT,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                arrayOf(
+                    android.Manifest.permission.BLUETOOTH,
+                    android.Manifest.permission.BLUETOOTH_ADMIN,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
+            else -> {
+                arrayOf(
+                    android.Manifest.permission.BLUETOOTH,
+                    android.Manifest.permission.BLUETOOTH_ADMIN,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            }
+        }
+    }
+
+    private suspend fun retryWithExponentialBackoff(
+        maxAttempts: Int = MAX_RETRY_ATTEMPTS,
+        initialDelayMs: Long = 1000,
+        maxDelayMs: Long = 10000,
+        operation: suspend () -> Unit
+    ) {
+        var currentDelay = initialDelayMs
+        repeat(maxAttempts) { attempt ->
+            try {
+                operation()
+                return
+            } catch (e: Exception) {
+                if (attempt == maxAttempts - 1) throw e
+                delay(currentDelay)
+                currentDelay = (currentDelay * 2).coerceAtMost(maxDelayMs)
+            }
+        }
+    }
+
+    private fun setupOperationTimeout(timeoutMs: Long = OPERATION_TIMEOUT_MS) {
+        operationTimeout?.cancel()
+        operationTimeout = coroutineScope.launch {
+            delay(timeoutMs)
+            if (!isSubmitted) {
+                isSubmitted = true
+                result.error(
+                    "OPERATION_TIMEOUT",
+                    "Operation timed out after ${timeoutMs}ms",
+                    null
+                )
+            }
         }
     }
 
@@ -132,13 +208,41 @@ class VPBluetoothManager(
     private fun executeBluetoothActionWithPermission(operation: () -> Unit) {
         checkAndRequestBluetoothPermissions { status ->
             when (status) {
-                PermissionStatuses.GRANTED -> runBluetoothOperation(operation)
-                PermissionStatuses.DENIED -> VPLogger.d("Bluetooth permissions denied.")
-                PermissionStatuses.PERMANENTLY_DENIED -> VPLogger.d("Bluetooth permissions permanently denied.")
-                PermissionStatuses.RESTRICTED -> VPLogger.d("Bluetooth permissions restricted by device policy.")
-                PermissionStatuses.UNKNOWN -> VPLogger.d("Bluetooth permissions status unknown.")
+                PermissionStatuses.GRANTED -> {
+                    try {
+                        if (!bluetoothAdapter?.isEnabled!!) {
+                            result.error("BLUETOOTH_DISABLED", "Bluetooth is not enabled", null)
+                            return@checkAndRequestBluetoothPermissions
+                        }
+                        runBluetoothOperation(operation)
+                    } catch (e: Exception) {
+                        handleBluetoothError(e)
+                    }
+                }
+                else -> handlePermissionDenied(status)
             }
         }
+    }
+
+    private fun handleBluetoothError(error: Exception) {
+        val errorMessage = when (error) {
+            is SecurityException -> "Bluetooth permission issue: ${error.message}"
+            is IllegalStateException -> "Bluetooth adapter issue: ${error.message}"
+            else -> "Bluetooth operation error: ${error.message}"
+        }
+        VPLogger.e(errorMessage)
+        result.error("BLUETOOTH_ERROR", errorMessage, error.cause)
+    }
+
+    private fun handlePermissionDenied(status: PermissionStatuses) {
+        val message = when (status) {
+            PermissionStatuses.DENIED -> "Bluetooth permissions denied"
+            PermissionStatuses.PERMANENTLY_DENIED -> "Bluetooth permissions permanently denied"
+            PermissionStatuses.RESTRICTED -> "Bluetooth permissions restricted by device policy"
+            else -> "Unknown permission status"
+        }
+        VPLogger.w(message)
+        result.error("PERMISSION_ERROR", message, null)
     }
 
     private fun checkAndRequestBluetoothPermissions(callback: (PermissionStatuses) -> Unit) {
@@ -198,11 +302,29 @@ class VPBluetoothManager(
     @RequiresApi(Build.VERSION_CODES.S)
     fun scanDevices() {
         executeBluetoothActionWithPermission {
-            if (isEnabled) {
-                startScanDevices()
-            } else {
-                VPLogger.w("Bluetooth is disabled or the scanner is not initialized")
+            if (!isEnabled || isPowerSaveMode) {
+                VPLogger.w("Bluetooth is disabled or device is in power save mode")
+                return@executeBluetoothActionWithPermission
             }
+
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastScanTime < TimeUnit.MINUTES.toMillis(1)) {
+                VPLogger.w("Scanning too frequently, please wait")
+                return@executeBluetoothActionWithPermission
+            }
+
+            scanJob?.cancel()
+            scanJob = coroutineScope.launch {
+                try {
+                    startScanDevices()
+                    delay(SCAN_TIMEOUT_MS)
+                    stopScanDevices()
+                } catch (e: Exception) {
+                    VPLogger.e("Scan error: ${e.message}")
+                    stopScanDevices()
+                }
+            }
+            lastScanTime = currentTime
         }
     }
 
@@ -241,10 +363,15 @@ class VPBluetoothManager(
      */
     @RequiresApi(Build.VERSION_CODES.S)
     fun connectDevice(address: String) {
-       executeBluetoothActionWithPermission {
-           vpManager.registerConnectStatusListener(address, bleConnectStatusListener)
-           vpManager.connectDevice(address, connectResponseCallBack, notifyResponseCallBack)
-       }
+        executeBluetoothActionWithPermission {
+            coroutineScope.launch {
+                retryWithExponentialBackoff {
+                    vpManager.registerConnectStatusListener(address, bleConnectStatusListener)
+                    setupOperationTimeout()
+                    vpManager.connectDevice(address, connectResponseCallBack, notifyResponseCallBack)
+                }
+            }
+        }
     }
 
     /**
@@ -280,9 +407,26 @@ class VPBluetoothManager(
     @RequiresApi(Build.VERSION_CODES.S)
     fun disconnectDevice() {
         executeBluetoothActionWithPermission {
-            vpManager.disconnectWatch(writeResponse)
-            vpManager.unregisterConnectStatusListener(currentGatt.device.address, bleConnectStatusListener)
+            coroutineScope.launch {
+                try {
+                    vpManager.disconnectWatch(writeResponse)
+                    vpManager.unregisterConnectStatusListener(currentGatt.device.address, bleConnectStatusListener)
+                    cleanupResources()
+                } catch (e: Exception) {
+                    VPLogger.e("Disconnect error: ${e.message}")
+                    throw VPException("Error during disconnect: ${e.message}", e.cause)
+                }
+            }
         }
+    }
+
+    private fun cleanupResources() {
+        scanJob?.cancel()
+        operationTimeout?.cancel()
+        coroutineScope.cancel()
+        discoveredDevices.clear()
+        retryCount = 0
+        isSubmitted = false
     }
 
     private fun startScanDevices() = vpManager.startScanDevice(searchResponseCallBack)
